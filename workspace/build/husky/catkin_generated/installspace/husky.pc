@@ -1,0 +1,8 @@
+prefix=/home/luca/Desktop/master_thesis/workspace/install
+
+Name: husky
+Description: Description of husky
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

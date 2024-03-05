@@ -1,0 +1,2 @@
+husky
+-DCATKIN_DEVEL_PREFIX=/home/luca/Desktop/master_thesis/workspace/devel -DCMAKE_INSTALL_PREFIX=/home/luca/Desktop/master_thesis/workspace/install -G Unix Makefiles
