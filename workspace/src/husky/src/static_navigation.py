@@ -18,7 +18,8 @@ def move_robot(x, y):
     goal = MoveBaseGoal()
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
-    goal.target_pose.pose.position.x, goal.target_pose.pose.position.y = x, y
+    goal.target_pose.pose.orientation.w = 1
+    goal.target_pose.pose.position.x, goal.target_pose.pose.position.y = float(x), float(y)
 
     client.send_goal(goal)
     client.wait_for_result()
