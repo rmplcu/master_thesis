@@ -36,7 +36,14 @@ def move_robot(x, y):
 if __name__ == '__main__':
     rospy.init_node('static_navigation_node')
 
-    x, y = input('Insert coordinates: ').split()
-    print("Position reached" if move_robot(x,y) else "Position not reached")
+    try :
+        while True:
+            x, y = input('Insert coordinates: ').split()
+            move_robot(x,y)
+        
+    except KeyboardInterrupt:
+        pass
+
+
 
     

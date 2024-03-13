@@ -56,3 +56,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/husky" TYPE PROGRAM FILES "/home/luca/Desktop/master_thesis/workspace/build/husky/catkin_generated/installspace/static_navigation.py")
 endif()
 
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/husky" TYPE FILE FILES "/home/luca/Desktop/master_thesis/workspace/src/husky/launch/husky_dynamic_navigation.launch")
+endif()
+

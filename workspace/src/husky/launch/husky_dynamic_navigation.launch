@@ -1,0 +1,10 @@
+<launch>
+  <param name="/use_sim_time" value="true" />
+
+  <!-- start world -->
+  <node name="gazebo" pkg="gazebo_ros" type="gazebo" 
+   args="$(find husky)/worlds/clearpath_playpen.world" respawn="false" output="screen" />
+
+  <!-- include our robots -->
+  <include file="$(find husky)/launch/spawn_robots.launch"/>
+</launch>
