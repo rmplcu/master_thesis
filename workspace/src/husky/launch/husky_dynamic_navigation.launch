@@ -1,10 +1,22 @@
+<?xml version="1.0"?>
 <launch>
+  <!-- Args -->
+  <arg name="map_file" default="$(find husky)/maps/playpen_map.yaml"/>
+
   <param name="/use_sim_time" value="true" />
 
-  <!-- start world -->
-  <node name="gazebo" pkg="gazebo_ros" type="gazebo" 
-   args="$(find husky)/worlds/clearpath_playpen.world" respawn="false" output="screen" />
+  <!-- Gazebo -->
+  <include file="$(find husky_gazebo)/launch/playpen.launch"/>
 
-  <!-- include our robots -->
+  <!-- Spawn robots -->
   <include file="$(find husky)/launch/spawn_robots.launch"/>
+
+  <!-- Multi AMCL -->
+
+  <!-- Map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- RVIZ -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky)/config/rviz.rviz" output="screen"/>
+
 </launch>

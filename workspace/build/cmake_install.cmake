@@ -131,7 +131,11 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/luca/Desktop/master_thesis/workspace/build/gtest/cmake_install.cmake")
+  include("/home/luca/Desktop/master_thesis/workspace/build/nre_simmultihusky/cmake_install.cmake")
+  include("/home/luca/Desktop/master_thesis/workspace/build/multihusky_simulator/robot_localization_243/cmake_install.cmake")
+  include("/home/luca/Desktop/master_thesis/workspace/build/multihusky_simulator/multihusky_viz/cmake_install.cmake")
   include("/home/luca/Desktop/master_thesis/workspace/build/husky/cmake_install.cmake")
+  include("/home/luca/Desktop/master_thesis/workspace/build/multihusky_simulator/multihusky_gazebo/cmake_install.cmake")
 
 endif()
 

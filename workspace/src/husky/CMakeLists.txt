@@ -8,6 +8,10 @@ project(husky)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  husky_description
+  husky_gazebo
+  husky_msgs
+  husky_viz
   roscpp
   rospy
   std_msgs
