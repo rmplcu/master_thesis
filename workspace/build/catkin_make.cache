@@ -1,2 +1,0 @@
-husky:multihusky_simulator/multihusky_gazebo:multihusky_simulator/multihusky_viz:multihusky_simulator/robot_localization_243:nre_simmultihusky
--DCATKIN_DEVEL_PREFIX=/home/luca/Desktop/master_thesis/workspace/devel -DCMAKE_INSTALL_PREFIX=/home/luca/Desktop/master_thesis/workspace/install -G Unix Makefiles
