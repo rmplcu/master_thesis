@@ -13,9 +13,6 @@
 
   <!-- Multi AMCL -->
 
-  <!-- Map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
-
   <!-- RVIZ -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky)/config/rviz.rviz" output="screen"/>
 

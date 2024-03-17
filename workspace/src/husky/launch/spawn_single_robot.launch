@@ -4,8 +4,8 @@
     <arg name="y" default="0.0"/>
     <arg name="robot_namespace"/>
     <param name="tf_prefix" value="$(arg robot_namespace)_tf" />
-    <param name="robot_description" command="$(find xacro)/xacro '$(find husky_description)/urdf/husky.urdf.xacro'
-        robot_namespace:=$(arg robot_namespace)
+    <param name="robot_description" command="$(find xacro)/xacro '$(find husky)/config/husky.urdf.xacro'
+        robot_namespace:=$(arg robot_namespace) tfpre:=$(arg robot_namespace)_tf
     "/>
 
     <!-- Spawn husky -->

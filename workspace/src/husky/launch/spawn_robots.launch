@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="r1_ns" default="husky1"/>
+  <arg name="r2_ns" default="husky2"/>
 
-  <group ns="husky1">
+  <group ns="$(arg r1_ns)">
     <include file="$(find husky)/launch/spawn_single_robot.launch">
-      <arg name="robot_namespace" value="husky1" />
+      <arg name="robot_namespace" value="$(arg r1_ns)" />
     </include>
   </group>
 
-  <group ns="husky2">
+  <group ns="$(arg r2_ns)">
     <include file="$(find husky)/launch/spawn_single_robot.launch">
-      <arg name="robot_namespace" value="husky2" />
+      <arg name="robot_namespace" value="$(arg r2_ns)" />
       <arg name="x" value="-7.0" />
     </include>
   </group>

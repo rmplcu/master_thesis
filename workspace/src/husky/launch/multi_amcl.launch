@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Args -->
+  <arg name="r1_ns" default="husky1"/>
+  <!-- Map server -->
+  <arg name="map_file" default="$(find husky)/maps/playpen_map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+  </node>
+
+
+  <group ns="$(arg r1_ns)">
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+      <remap from="map" to="/map"/>
+    </node>
+  </group>
+
+  <!--
+
+  <group ns="robot2">
+    <param name="tf_prefix" value="robot2_tf" />
+    <param name="amcl/initial_pose_x" value="-1" />
+    <param name="amcl/initial_pose_y" value="1" />
+    <include file="$(find husky)/launch/single_amcl.launch" />
+  </group>
+  -->
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find husky)/config/rviz.rviz" output="screen" />
+
+</launch>
