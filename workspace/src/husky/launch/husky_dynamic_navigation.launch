@@ -8,9 +8,8 @@
   <!-- Spawn robots -->
   <include file="$(find husky)/launch/spawn_robots.launch"/>
 
-  <!-- Multi AMCL 
+  <!-- Multi AMCL -->
   <include file="$(find husky)/launch/multi_amcl.launch"/>
-  -->
  
   <!-- RVIZ -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky)/config/rviz.rviz" output="screen"/>

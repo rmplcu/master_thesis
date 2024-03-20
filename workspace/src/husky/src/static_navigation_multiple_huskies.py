@@ -11,7 +11,7 @@ from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
 # y: y coordinate position 
 def move_robot(x, y, name):
     
-    client = actionlib.SimpleActionClient(f'/{name}/move_base/goal', MoveBaseAction)
+    client = actionlib.SimpleActionClient(f'/{name}/move_base', MoveBaseAction)
     print(f'{name}/move_base')
 
     if (not client.wait_for_server(rospy.Duration(10))):
@@ -20,7 +20,7 @@ def move_robot(x, y, name):
 
     #Set goal position
     goal = MoveBaseGoal()
-    goal.target_pose.header.frame_id = "map"
+    goal.target_pose.header.frame_id = f'{name}_tf/frame_id'
     goal.target_pose.header.stamp = rospy.Time.now()
     goal.target_pose.pose.orientation.w = 1
     goal.target_pose.pose.position.x, goal.target_pose.pose.position.y = float(x), float(y)
