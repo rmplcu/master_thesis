@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="robot_namespace" default="/"/>
-  <arg name="cmd_vel_topic" default="$(arg robot_namespace)/cmd_vel" />
-  <arg name="odom_topic" default="$(arg robot_namespace)/odom" />
-  <arg name="base_footprint_topic" default="/base_footprint"/>
+  <arg name="robot_namespace" default=""/>
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
+
+  <param name="tf_prefix" value="$(arg robot_namespace)_tf"/>
 
   <!--- Run AMCL -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
@@ -40,21 +39,19 @@
     <param name="transform_tolerance" value="0.1"/>
     <param name="recovery_alpha_slow" value="0.0"/>
     <param name="recovery_alpha_fast" value="0.0"/>
+
   </node>
 
   <!--- Run Move Base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
 
-    <rosparam file="$(find husky_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap"/>
-    <rosparam file="$(find husky_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find husky_navigation)/config/costmap_local.yaml"  command="load" />
-    <rosparam file="$(find husky_navigation)/config/costmap_global_static.yaml" command="load" />
-    <rosparam file="$(find husky_navigation)/config/planner.yaml" command="load" />
+    <!-- Default config in husky_navigation -->
+    <rosparam file="$(find husky)/config/costmap_common.yaml" command="load" ns="global_costmap"/> 
+    <rosparam file="$(find husky)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find husky)/config/costmap_local.yaml"  command="load" />
+    <rosparam file="$(find husky)/config/costmap_global_static.yaml" command="load" />
+    <rosparam file="$(find husky)/config/planner.yaml" command="load" />
 
-    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
-    <remap from="odom" to="$(arg odom_topic)"/>
-
-    <remap from="base_footprint" to="$(arg base_footprint_topic)" />
   </node>
   </launch>

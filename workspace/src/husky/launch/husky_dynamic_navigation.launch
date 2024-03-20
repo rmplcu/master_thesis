@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- Args -->
-  <arg name="map_file" default="$(find husky)/maps/playpen_map.yaml"/>
-
   <param name="/use_sim_time" value="true" />
 
   <!-- Gazebo -->
@@ -11,9 +8,12 @@
   <!-- Spawn robots -->
   <include file="$(find husky)/launch/spawn_robots.launch"/>
 
-  <!-- Multi AMCL -->
-
+  <!-- Multi AMCL 
+  <include file="$(find husky)/launch/multi_amcl.launch"/>
+  -->
+ 
   <!-- RVIZ -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky)/config/rviz.rviz" output="screen"/>
 
+  <node name="husky_dynamic_navigation" pkg="husky" type="static_navigation_multiple_huskies.py" output="screen" launch-prefix="gnome-terminal --tab -- "/>
 </launch>
