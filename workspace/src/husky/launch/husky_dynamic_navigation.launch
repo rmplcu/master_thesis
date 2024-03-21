@@ -1,18 +1,28 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="/use_sim_time" value="true" />
+  <arg name="h1_x" value="0.0"/>
+  <arg name="h1_y" value="0.0"/>
+  <arg name="h2_x" value="-7.0"/>
+  <arg name="h2_y" value="0.0"/>
 
-  <!-- Gazebo -->
   <include file="$(find husky_gazebo)/launch/playpen.launch"/>
 
-  <!-- Spawn robots -->
-  <include file="$(find husky)/launch/spawn_robots.launch"/>
+  <!-- FER-LAMOR -->
+  <include file="$(find husky)/launch/spawn_robots.launch">
+    <arg name="h1_x" value="0.0"/>
+    <arg name="h1_y" value="0.0"/>
+    <arg name="h2_x" value="-7.0"/>
+    <arg name="h2_y" value="0.0"/>
+  </include>
+  <include file="$(find husky)/launch/multi_amcl.launch">
+    <arg name="h1_x" value="0.0"/>
+    <arg name="h1_y" value="0.0"/>
+    <arg name="h2_x" value="-7.0"/>
+    <arg name="h2_y" value="0.0"/>
+    <arg name="map_file" value="$(find husky)/maps/playpen_map.yaml"/>
+  </include>
+  <include file="$(find dip_rad)/launch/rviz_2_husky_launch.launch"/>
 
-  <!-- Multi AMCL -->
-  <include file="$(find husky)/launch/multi_amcl.launch"/>
- 
-  <!-- RVIZ -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky)/config/rviz.rviz" output="screen"/>
-
-  <node name="husky_dynamic_navigation" pkg="husky" type="static_navigation_multiple_huskies.py" output="screen" launch-prefix="gnome-terminal --tab -- "/>
+  <!-- My script -->
+  <node pkg="husky" name="huskies_static_navigation" type="static_navigation_multiple_huskies.py" launch-prefix="gnome-terminal --tab -- "/>
 </launch>
