@@ -1,5 +1,6 @@
 footprint: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
 footprint_padding: 0.01
+inflation_radius: 0.55
 
 robot_base_frame: base_link
 update_frequency: 4.0

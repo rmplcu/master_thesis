@@ -5,8 +5,14 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Robot11/Sensing1
+        - /Robot11/Navigation1
+        - /Robot21
+        - /Robot21/Sensing1/LaserScan1
+        - /Robot21/Navigation1
+        - /Robot21/Navigation1/Global Plan1
       Splitter Ratio: 0.49492400884628296
-    Tree Height: 605
+    Tree Height: 284
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -23,7 +29,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
   - Class: rviz/Displays
     Help Height: 70
     Name: Displays
@@ -38,6 +44,12 @@ Panels:
       Expanded: ~
       Splitter Ratio: 0.5
     Tree Height: 371
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /Interact1
+      - /2D Nav Goal1
+    Name: Tool Properties
+    Splitter Ratio: 0.5
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -93,7 +105,6 @@ Visualization Manager:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
             front_laser_mount:
               Alpha: 1
               Show Axes: false
@@ -163,8 +174,11 @@ Visualization Manager:
           Visual Enabled: true
         - Class: rviz/Group
           Displays:
-            - Angle Tolerance: 0.10000000149011612
-              Class: rviz/Odometry
+            - Alpha: 1
+              Axes Length: 1
+              Axes Radius: 0.10000000149011612
+              Class: rviz/PoseWithCovariance
+              Color: 255; 25; 0
               Covariance:
                 Orientation:
                   Alpha: 0.5
@@ -181,21 +195,14 @@ Visualization Manager:
                   Value: true
                 Value: true
               Enabled: true
-              Keep: 100
-              Name: Odometry
-              Position Tolerance: 0.10000000149011612
+              Head Length: 0.30000001192092896
+              Head Radius: 0.10000000149011612
+              Name: PoseWithCovariance
               Queue Size: 10
-              Shape:
-                Alpha: 1
-                Axes Length: 1
-                Axes Radius: 0.10000000149011612
-                Color: 255; 25; 0
-                Head Length: 0.30000001192092896
-                Head Radius: 0.10000000149011612
-                Shaft Length: 1
-                Shaft Radius: 0.05000000074505806
-                Value: Arrow
-              Topic: /husky1/odometry/filtered
+              Shaft Length: 1
+              Shaft Radius: 0.05000000074505806
+              Shape: Arrow
+              Topic: /husky1/amcl_pose
               Unreliable: false
               Value: true
             - Alpha: 1
@@ -281,86 +288,10 @@ Visualization Manager:
           Enabled: true
           Name: Sensing
         - Class: rviz/TF
-          Enabled: true
-          Filter (blacklist): ""
-          Filter (whitelist): ""
+          Enabled: false
           Frame Timeout: 15
           Frames:
             All Enabled: true
-            husky1_tf/base_footprint:
-              Value: true
-            husky1_tf/base_link:
-              Value: true
-            husky1_tf/front_bumper_link:
-              Value: true
-            husky1_tf/front_laser:
-              Value: true
-            husky1_tf/front_laser_mount:
-              Value: true
-            husky1_tf/front_left_wheel_link:
-              Value: true
-            husky1_tf/front_right_wheel_link:
-              Value: true
-            husky1_tf/imu_link:
-              Value: true
-            husky1_tf/inertial_link:
-              Value: true
-            husky1_tf/odom:
-              Value: true
-            husky1_tf/rear_bumper_link:
-              Value: true
-            husky1_tf/rear_left_wheel_link:
-              Value: true
-            husky1_tf/rear_right_wheel_link:
-              Value: true
-            husky1_tf/top_chassis_link:
-              Value: true
-            husky1_tf/top_plate_front_link:
-              Value: true
-            husky1_tf/top_plate_link:
-              Value: true
-            husky1_tf/top_plate_rear_link:
-              Value: true
-            husky1_tf/user_rail_link:
-              Value: true
-            husky2_tf/base_footprint:
-              Value: true
-            husky2_tf/base_link:
-              Value: true
-            husky2_tf/front_bumper_link:
-              Value: true
-            husky2_tf/front_laser:
-              Value: true
-            husky2_tf/front_laser_mount:
-              Value: true
-            husky2_tf/front_left_wheel_link:
-              Value: true
-            husky2_tf/front_right_wheel_link:
-              Value: true
-            husky2_tf/imu_link:
-              Value: true
-            husky2_tf/inertial_link:
-              Value: true
-            husky2_tf/odom:
-              Value: true
-            husky2_tf/rear_bumper_link:
-              Value: true
-            husky2_tf/rear_left_wheel_link:
-              Value: true
-            husky2_tf/rear_right_wheel_link:
-              Value: true
-            husky2_tf/top_chassis_link:
-              Value: true
-            husky2_tf/top_plate_front_link:
-              Value: true
-            husky2_tf/top_plate_link:
-              Value: true
-            husky2_tf/top_plate_rear_link:
-              Value: true
-            husky2_tf/user_rail_link:
-              Value: true
-            map:
-              Value: true
           Marker Alpha: 1
           Marker Scale: 1
           Name: TF
@@ -368,73 +299,9 @@ Visualization Manager:
           Show Axes: true
           Show Names: true
           Tree:
-            map:
-              husky1_tf/odom:
-                husky1_tf/base_link:
-                  husky1_tf/base_footprint:
-                    {}
-                  husky1_tf/front_bumper_link:
-                    {}
-                  husky1_tf/front_left_wheel_link:
-                    {}
-                  husky1_tf/front_right_wheel_link:
-                    {}
-                  husky1_tf/imu_link:
-                    {}
-                  husky1_tf/inertial_link:
-                    {}
-                  husky1_tf/rear_bumper_link:
-                    {}
-                  husky1_tf/rear_left_wheel_link:
-                    {}
-                  husky1_tf/rear_right_wheel_link:
-                    {}
-                  husky1_tf/top_chassis_link:
-                    {}
-                  husky1_tf/top_plate_link:
-                    husky1_tf/front_laser_mount:
-                      husky1_tf/front_laser:
-                        {}
-                    husky1_tf/top_plate_front_link:
-                      {}
-                    husky1_tf/top_plate_rear_link:
-                      {}
-                  husky1_tf/user_rail_link:
-                    {}
-              husky2_tf/odom:
-                husky2_tf/base_link:
-                  husky2_tf/base_footprint:
-                    {}
-                  husky2_tf/front_bumper_link:
-                    {}
-                  husky2_tf/front_left_wheel_link:
-                    {}
-                  husky2_tf/front_right_wheel_link:
-                    {}
-                  husky2_tf/imu_link:
-                    {}
-                  husky2_tf/inertial_link:
-                    {}
-                  husky2_tf/rear_bumper_link:
-                    {}
-                  husky2_tf/rear_left_wheel_link:
-                    {}
-                  husky2_tf/rear_right_wheel_link:
-                    {}
-                  husky2_tf/top_chassis_link:
-                    {}
-                  husky2_tf/top_plate_link:
-                    husky2_tf/front_laser_mount:
-                      husky2_tf/front_laser:
-                        {}
-                    husky2_tf/top_plate_front_link:
-                      {}
-                    husky2_tf/top_plate_rear_link:
-                      {}
-                  husky2_tf/user_rail_link:
-                    {}
+            {}
           Update Interval: 0
-          Value: true
+          Value: false
         - Class: rviz/InteractiveMarkers
           Enable Transparency: true
           Enabled: true
@@ -484,7 +351,7 @@ Visualization Manager:
               Draw Behind: true
               Enabled: true
               Name: Global Costmap
-              Topic: /move_base/global_costmap/costmap
+              Topic: /husky1/move_base/global_costmap/costmap
               Unreliable: false
               Use Timestamp: false
               Value: true
@@ -494,7 +361,7 @@ Visualization Manager:
               Draw Behind: false
               Enabled: true
               Name: Local Costmap
-              Topic: /move_base/local_costmap/costmap
+              Topic: /husky1/move_base/local_costmap/costmap
               Unreliable: false
               Use Timestamp: false
               Value: true
@@ -548,6 +415,15 @@ Visualization Manager:
               Value: true
           Enabled: true
           Name: Navigation
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 25; 255; 0
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /husky1/move_base/local_costmap/footprint
+          Unreliable: false
+          Value: true
       Enabled: true
       Name: Robot1
     - Class: rviz/Group
@@ -580,7 +456,6 @@ Visualization Manager:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
             front_laser_mount:
               Alpha: 1
               Show Axes: false
@@ -650,8 +525,11 @@ Visualization Manager:
           Visual Enabled: true
         - Class: rviz/Group
           Displays:
-            - Angle Tolerance: 0.10000000149011612
-              Class: rviz/Odometry
+            - Alpha: 1
+              Axes Length: 1
+              Axes Radius: 0.10000000149011612
+              Class: rviz/PoseWithCovariance
+              Color: 255; 25; 0
               Covariance:
                 Orientation:
                   Alpha: 0.5
@@ -668,21 +546,14 @@ Visualization Manager:
                   Value: true
                 Value: true
               Enabled: true
-              Keep: 100
-              Name: Odometry
-              Position Tolerance: 0.10000000149011612
+              Head Length: 0.30000001192092896
+              Head Radius: 0.10000000149011612
+              Name: PoseWithCovariance
               Queue Size: 10
-              Shape:
-                Alpha: 1
-                Axes Length: 1
-                Axes Radius: 0.10000000149011612
-                Color: 255; 25; 0
-                Head Length: 0.30000001192092896
-                Head Radius: 0.10000000149011612
-                Shaft Length: 1
-                Shaft Radius: 0.05000000074505806
-                Value: Arrow
-              Topic: /husky2/odometry/filtered
+              Shaft Length: 1
+              Shaft Radius: 0.05000000074505806
+              Shape: Arrow
+              Topic: /husky2/amcl_pose
               Unreliable: false
               Value: true
             - Alpha: 1
@@ -769,8 +640,6 @@ Visualization Manager:
           Name: Sensing
         - Class: rviz/TF
           Enabled: false
-          Filter (blacklist): ""
-          Filter (whitelist): ""
           Frame Timeout: 15
           Frames:
             All Enabled: true
@@ -833,7 +702,7 @@ Visualization Manager:
               Draw Behind: true
               Enabled: true
               Name: Global Costmap
-              Topic: /move_base/global_costmap/costmap
+              Topic: /husky2/move_base/global_costmap/costmap
               Unreliable: false
               Use Timestamp: false
               Value: true
@@ -843,7 +712,7 @@ Visualization Manager:
               Draw Behind: false
               Enabled: true
               Name: Local Costmap
-              Topic: /move_base/local_costmap/costmap
+              Topic: /husky2/move_base/local_costmap/costmap
               Unreliable: false
               Use Timestamp: false
               Value: true
@@ -897,6 +766,15 @@ Visualization Manager:
               Value: true
           Enabled: true
           Name: Navigation
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 25; 255; 0
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /husky2/move_base/local_costmap/footprint
+          Unreliable: false
+          Value: true
       Enabled: true
       Name: Robot2
   Enabled: true
@@ -913,19 +791,26 @@ Visualization Manager:
     - Class: rviz/Select
     - Class: rviz/SetInitialPose
       Theta std deviation: 0.2617993950843811
-      Topic: /initialpose
+      Topic: /husky1/initialpose
       X std deviation: 0.5
       Y std deviation: 0.5
     - Class: rviz/SetGoal
-      Topic: /move_base_simple/goal
+      Topic: /husky1/move_base_simple/goal
     - Class: rviz/PublishPoint
       Single click: false
       Topic: /clicked_point
+    - Class: rviz/SetGoal
+      Topic: /husky2/move_base_simple/goal
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /husky2/initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
   Value: true
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 33.388023376464844
+      Distance: 28.48158836364746
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -933,17 +818,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.629080057144165
-        Y: -0.08347029983997345
-        Z: -0.8487120270729065
+        X: -0.69095778465271
+        Y: -0.39667844772338867
+        Z: 0.1550499051809311
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9598000049591064
+      Pitch: 1.4397964477539062
       Target Frame: <Fixed Frame>
-      Yaw: 5.220399856567383
+      Yaw: 4.870412826538086
     Saved: ~
 Window Geometry:
   Displays:
@@ -951,7 +836,7 @@ Window Geometry:
   Height: 834
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000018c000002e8fc0200000007fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d000002e8000000c900fffffffb000000100044006900730070006c006100790073000000021200000113000000c900fffffffb000000100044006900730070006c006100790073000000021200000113000000c900ffffff000000010000010f000002ddfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000043000002dd000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000041800fffffffb0000000800540069006d00650100000000000004500000000000000000000004ae000002e800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000018c000002e8fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d000001a7000000c900fffffffb000000100044006900730070006c006100790073000000021200000113000000c900fffffffb000000100044006900730070006c006100790073000000021200000113000000c900fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000001ea0000013b0000005c00ffffff000000010000010f000002ddfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000043000002dd000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000041800fffffffb0000000800540069006d00650100000000000004500000000000000000000004ae000002e800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
