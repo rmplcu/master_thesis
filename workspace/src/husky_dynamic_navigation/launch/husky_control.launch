@@ -14,12 +14,12 @@
   <!-- potrebno kako bi mogao customizeat parametre za vise huskija inace moras exportat env var a to vrijedi samo za jedan terminal pa i za jednog robota, a env unutar launcha mi nije radilo-->
   <arg name="laser_ust10_front_enabled" value="1" />
   
-  <param name="robot_description" command="$(find xacro)/xacro '$(find husky)/config/husky.urdf.xacro'
+  <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/config/husky.urdf.xacro'
     robot_namespace:=$(arg robot_namespace) laser_ust10_front_enabled:=$(arg laser_ust10_front_enabled)
     tf_prefix:=$(arg husky_num)_tf" /> <!-- ne salje se ime topica, pa je po defaultu /front/scan i onda se zbog namesapcea ispred doda /husky1 pa bude /husky1/front/scan -->
 
   <!-- Load controller configuration -->
-  <rosparam command="load" file="$(find husky)/config/control_$(arg husky_num).yaml" />
+  <rosparam command="load" file="$(find husky_dynamic_navigation)/config/control_$(arg husky_num).yaml" />
 
 
   <!-- Spawn controllers -->
@@ -34,7 +34,7 @@
   <!-- Start EKF for localization -->
   <group if="$(arg enable_ekf)" >
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
-      <rosparam command="load" file="$(find husky)/config/localization_$(arg husky_num).yaml" />
+      <rosparam command="load" file="$(find husky_dynamic_navigation)/config/localization_$(arg husky_num).yaml" />
     </node>
   </group>
 
@@ -45,7 +45,7 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <node pkg="twist_mux" type="twist_mux" name="twist_mux">
-    <rosparam command="load" file="$(find husky)/config/twist_mux_$(arg husky_num).yaml" />
+    <rosparam command="load" file="$(find husky_dynamic_navigation)/config/twist_mux_$(arg husky_num).yaml" />
     <remap from="cmd_vel_out" to="husky_velocity_controller/cmd_vel"/>
   </node>
 

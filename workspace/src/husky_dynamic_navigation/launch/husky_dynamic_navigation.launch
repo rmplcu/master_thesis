@@ -5,19 +5,19 @@
   <arg name="husky1_y" default="0.0"/>
   <arg name="husky2_x" default="-7.0"/>
   <arg name="husky2_y" default="0.0"/>
-  <arg name="map_file" default="$(find husky)/maps/playpen_map.yaml"/>
+  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
 
 
   <include file="$(find husky_gazebo)/launch/playpen.launch"/>
 
   <!-- FER-LAMOR -->
-  <include file="$(find husky)/launch/spawn_robots.launch">
+  <include file="$(find husky_dynamic_navigation)/launch/spawn_robots.launch">
     <arg name="h1_x" value="$(arg husky1_x)"/>
     <arg name="h1_y" value="$(arg husky1_y)"/>
     <arg name="h2_x" value="$(arg husky2_x)"/>
     <arg name="h2_y" value="$(arg husky2_y)"/>
   </include>
-  <include file="$(find husky)/launch/multi_amcl.launch">
+  <include file="$(find husky_dynamic_navigation)/launch/multi_amcl.launch">
     <arg name="h1_x" value="$(arg husky1_x)"/>
     <arg name="h1_y" value="$(arg husky1_y)"/>
     <arg name="h2_x" value="$(arg husky2_x)"/>
@@ -29,9 +29,9 @@
 
   <include file="$(find dip_rad)/launch/rviz_2_husky_launch.launch"/>
   -->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find husky)/config/rviz.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find husky_dynamic_navigation)/config/rviz.rviz"/>
 
 
   <!-- My script -->
-  <node pkg="husky" name="huskies_static_navigation" type="static_navigation_multiple_huskies.py" launch-prefix="gnome-terminal --tab -- "/>
+  <node pkg="husky_dynamic_navigation" name="huskies_static_navigation" type="static_navigation_multiple_huskies.py" launch-prefix="gnome-terminal --tab -- "/>
 </launch>

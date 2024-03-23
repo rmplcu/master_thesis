@@ -7,7 +7,7 @@
 
 
   <!-- Run the map server -->
-  <arg name="map_file" default="$(find husky)/maps/playpen_map.yaml"/>
+  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <!-- ovo kad bi ti bili map i odom preklopljeni a to nije istina, jedino kad bi oba robota spawnao u 0,0 i yaw=0 -->
@@ -24,7 +24,7 @@
   <group> <!-- maknuo ns jer mi onda map topic bude /husky1/map a ne /map i ne mogu to nikako remapat nez zas -->
     <!--- Run AMCL -->
     <arg name="node_name_prefix" value="husky1"/>
-    <include file="$(find husky)/launch/single_amcl.launch">
+    <include file="$(find husky_dynamic_navigation)/launch/single_amcl.launch">
       <arg name="scan_topic" value="/husky1/front/scan"/>
       <arg name="odom_frame_id" value="husky1_tf/odom"/>
       <arg name="base_frame_id" value="husky1_tf/base_link"/>
@@ -36,7 +36,7 @@
 
   <!--- Run Move Base -->
   <group ns="/husky1">
-    <include file="$(find husky)/launch/move_base_husky.launch">
+    <include file="$(find husky_dynamic_navigation)/launch/move_base_husky.launch">
       <!-- <include file="$(find dip_rad)/launch/move_base_husky_teb.launch"> za koristit teb umjesto dwa local plannera -->
       <param name="tf_prefix" value="husky1_tf" />
       <arg name="cmd_vel_topic" value="/husky1/cmd_vel"/> 
@@ -55,7 +55,7 @@
   <group>
     <!--- Run AMCL -->
     <arg name="node_name_prefix" value="husky2"/>
-    <include file="$(find husky)/launch/single_amcl.launch">
+    <include file="$(find husky_dynamic_navigation)/launch/single_amcl.launch">
       <arg name="scan_topic" value="/husky2/front/scan"/>
       <arg name="odom_frame_id" value="husky2_tf/odom"/>
       <arg name="base_frame_id" value="husky2_tf/base_link"/>
@@ -68,7 +68,7 @@
 
   <!--- Run Move Base -->
   <group ns="/husky2">
-    <include file="$(find husky)/launch/move_base_husky.launch">
+    <include file="$(find husky_dynamic_navigation)/launch/move_base_husky.launch">
       <!-- <include file="$(find dip_rad)/launch/move_base_husky_teb.launch"> za koristit teb umjesto dwa local plannera -->
       <param name="tf_prefix" value="husky2_tf" />
       <arg name="cmd_vel_topic" value="/husky2/cmd_vel"/>

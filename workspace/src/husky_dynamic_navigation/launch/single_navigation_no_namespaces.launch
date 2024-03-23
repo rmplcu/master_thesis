@@ -60,11 +60,11 @@
     <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
 
     <!-- Default config in husky_navigation -->
-    <rosparam file="$(find husky)/config/costmap_common.yaml" command="load" ns="global_costmap"/> 
-    <rosparam file="$(find husky)/config/costmap_common.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find husky)/config/costmap_local.yaml"  command="load" />
-    <rosparam file="$(find husky)/config/costmap_global_static.yaml" command="load" />
-    <rosparam file="$(find husky)/config/planner.yaml" command="load" />
+    <rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap"/> 
+    <rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find husky_dynamic_navigation)/config/costmap_local.yaml"  command="load" />
+    <rosparam file="$(find husky_dynamic_navigation)/config/costmap_global_static.yaml" command="load" />
+    <rosparam file="$(find husky_dynamic_navigation)/config/planner.yaml" command="load" />
 
     <param name="global_costmap/global_frame" value="map"/>
     <param name="global_costmap/robot_base_frame" value="$(arg robot_namespace)_tf/base_link"/>
