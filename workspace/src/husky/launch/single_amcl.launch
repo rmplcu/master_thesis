@@ -1,70 +1,100 @@
 <?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+
+\file      amcl.launch
+\authors   Paul Bovbel <pbovbel@clearpathrobotics.com>, Prasenjit Mukherjee <pmukherj@clearpathrobotics.com>
+\copyright Copyright (c) 2015, Clearpath Robotics, Inc., All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+the following conditions are met:
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the
+   following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+   following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Neither the name of Clearpath Robotics nor the names of its contributors may be used to endorse or promote
+   products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WAR-
+RANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, IN-
+DIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
 <launch>
 
-  <arg name="robot_namespace" default=""/>
-  <arg name="x" default="0.0"/>
-  <arg name="y" default="0.0"/>
+  <arg name="use_map_topic" default="true"/>
+  <arg name="scan_topic" default="front/scan" />
+  <arg name="odom_frame_id" default="odom" />
+  <arg name="base_frame_id" default="base_link"/>
+  <arg name="node_name_prefix" default="husky1"/>
 
-  <param name="tf_prefix" value="$(arg robot_namespace)_tf"/>
+  <arg name="initial_pose_x" default="6.18"/>
+  <arg name="initial_pose_y" default="-1.34"/>
+  <arg name="initial_pose_a" default="0"/> <!-- yaw -->
 
-  <!--- Run AMCL -->
-  <node pkg="amcl" type="amcl" name="amcl" output="screen">
-    <param name="use_map_topic" value="false"/>
+  <node pkg="amcl" type="amcl" name="$(arg node_name_prefix)_amcl">
+  <!-- <node pkg="amcl" type="amcl" name="amcl"> -->
+    <param name="use_map_topic" value="$(arg use_map_topic)"/>
     <!-- Publish scans from best pose at a max of 10 Hz -->
-    <param name="odom_model_type"  value="diff"/>
-    <param name="odom_alpha5"    value="0.1"/>
+    <param name="odom_model_type" value="diff"/>
+    <param name="odom_alpha5" value="0.1"/>
     <param name="gui_publish_rate" value="10.0"/>
-    <param name="laser_max_beams"  value="60"/>
-    <param name="laser_max_range"  value="12.0"/>
-    <param name="min_particles"  value="500"/>
-    <param name="max_particles"  value="2000"/>
+    <param name="laser_max_beams" value="60"/>
+    <param name="laser_max_range" value="12.0"/>
+    <param name="min_particles" value="500"/>
+    <param name="max_particles" value="2000"/>
     <param name="kld_err" value="0.05"/>
     <param name="kld_z" value="0.99"/>
-    <param name="odom_alpha1"    value="0.2"/>
-    <param name="odom_alpha2"    value="0.2"/>
+    <!-- <param name="odom_alpha1" value="0.2"/> -->
+    <param name="odom_alpha1" value="0.02"/> smanjeni ocekivani šum odometrije
+    <!-- <param name="odom_alpha2" value="0.2"/> -->
+    <param name="odom_alpha2" value="0.02"/>
     <!-- translation std dev, m -->
-    <param name="odom_alpha3" value="0.2"/>
-    <param name="odom_alpha4" value="0.2"/>
-    <param name="laser_z_hit" value="0.5"/>
+    <!-- <param name="odom_alpha3" value="0.2"/> -->
+    <param name="odom_alpha3" value="0.02"/>
+    <!-- <param name="odom_alpha4" value="0.2"/> -->
+    <param name="odom_alpha4" value="0.02"/>
+    <!-- <param name="laser_z_hit" value="0.5"/> -->
+    <param name="laser_z_hit" value="0.9"/>
     <param name="laser_z_short" value="0.05"/>
     <param name="laser_z_max" value="0.05"/>
     <param name="laser_z_rand" value="0.5"/>
-    <param name="laser_sigma_hit"  value="0.2"/>
+    <!-- <param name="laser_sigma_hit" value="0.2"/> -->
+    <param name="laser_sigma_hit" value="0.1"/> smanjio vjerovanje u laser
     <param name="laser_lambda_short" value="0.1"/>
     <param name="laser_model_type" value="likelihood_field"/>
-    <!-- <param name="laser_model_type" value="beam"/> -->
-    <param name="laser_likelihood_max_dist" value="2.0"/>
+    <!-- <param name="laser_model_type" value="beam"/> ovo je i prije bilo zakomentirano -->
+    <!-- <param name="laser_likelihood_max_dist" value="2.0"/> -->
+    <param name="laser_likelihood_max_dist" value="4.0"/>
     <param name="update_min_d" value="0.25"/>
     <param name="update_min_a" value="0.2"/>
-    <param name="odom_frame_id" value="odom"/>
-    <param name="global_frame_id" value="/map"/>
+    <!-- <param name="odom_frame_id" value="odom"/> -->
+    <param name="odom_frame_id" value="$(arg odom_frame_id)"/>
     <param name="resample_interval" value="1"/>
     <!-- Increase tolerance because the computer can get quite busy -->
     <param name="transform_tolerance" value="1.0"/>
     <param name="recovery_alpha_slow" value="0.0"/>
     <param name="recovery_alpha_fast" value="0.0"/>
-
-    <param name="initial_pose_x" value="$(arg x)"/>
-    <param name="initial_pose_y" value="$(arg y)"/>
-
-    <remap from="scan" to="front/scan"/>
     
-    <remap from="static_map" to="/static_map" /> 
-    <remap from="map" to="/map" />
+    <remap from="scan" to="$(arg scan_topic)"/> 
+    <remap from="initialpose" to="/$(arg node_name_prefix)/initialpose"/> 
+    <remap from="amcl_pose" to="/$(arg node_name_prefix)/amcl_pose"/>
+    <remap from="particlecloud" to="/$(arg node_name_prefix)/particlecloud"/>
+    <!-- <remap from="$(arg node_name_prefix)/map" to="map"/> inace ce zbog namespacea bit /husky1/map -. ako koristim namespace onda nikako ovo ne mogu promjenit sa /husky1/map na map nez zas -->
+    <!-- <remap from="map" to="map"/> inace ce zbog namespacea bit /husky1/map,,, i dalje bude /husky1/map umjesto map ako koristim namespace.. -->
 
+    <param name="base_frame_id" value="$(arg base_frame_id)"/>
+    <param name="global_frame_id" value="map"/> <!-- inace je /husky1/map zbog namespace-a -->
+    <!-- <param name="tf_broadcast" value="false"/> -->
+    <param name="tf_broadcast" value="true"/>
+
+    <param name="initial_pose_x" value="$(arg initial_pose_x)"/>
+    <param name="initial_pose_y" value="$(arg initial_pose_y)"/>
+    <param name="initial_pose_a" value="$(arg initial_pose_a)"/> <!-- yaw -->
+    
   </node>
 
-  <!--- Run Move Base -->
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-
-    <!-- Default config in husky_navigation -->
-    <rosparam file="$(find husky)/config/costmap_common.yaml" command="load" ns="global_costmap"/> 
-    <rosparam file="$(find husky)/config/costmap_common.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find husky)/config/costmap_local.yaml"  command="load" />
-    <rosparam file="$(find husky)/config/costmap_global_static.yaml" command="load" />
-    <rosparam file="$(find husky)/config/planner.yaml" command="load" />
-
-    <remap from="map" to="/map"/>
-  </node>
 </launch>

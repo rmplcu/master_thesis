@@ -4,20 +4,27 @@ husky_joint_publisher:
 
 husky_velocity_controller:
   type: "diff_drive_controller/DiffDriveController"
+  # left_wheel: ['husky1_tf/front_left_wheel', 'husky1_tf/rear_left_wheel']
   left_wheel: ['front_left_wheel', 'rear_left_wheel']
+  # right_wheel: ['husky1_tf/front_right_wheel', 'husky1_tf/rear_right_wheel']
   right_wheel: ['front_right_wheel', 'rear_right_wheel']
   publish_rate: 50
-  pose_covariance_diagonal: [0.00, 0.00, 0.00, 0.00, 0.00, 0.0]
-  twist_covariance_diagonal: [0.00, 0.00, 0.00, 0.00, 0.00, 0.0]
+  pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
+  twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
   cmd_vel_timeout: 0.25
   velocity_rolling_window_size: 2
 
   # Base frame_id
-  base_frame_id: /base_link
+  # base_frame_id: base_link
+  base_frame_id: husky1_tf/base_link #1
+  # base_frame_id: base_link #2
+  odom_frame_id: husky1_tf/odom #ja dodao #1
+  # odom_frame_id: odom #ja dodao #2
 
   # Odometry fused with IMU is published by robot_localization, so
   # no need to publish a TF based on encoders alone.
   enable_odom_tf: false
+  # enable_odom_tf: true
 
   # Wheel separation and radius multipliers
   wheel_separation_multiplier: 1.875 # default: 1.0

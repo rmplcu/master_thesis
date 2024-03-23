@@ -1,26 +1,30 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="h1_x" value="0.0"/>
-  <arg name="h1_y" value="0.0"/>
-  <arg name="h2_x" value="-7.0"/>
-  <arg name="h2_y" value="0.0"/>
+  <!-- Args -->
+  <arg name="husky1_x" default="0.0"/>
+  <arg name="husky1_y" default="0.0"/>
+  <arg name="husky2_x" default="-7.0"/>
+  <arg name="husky2_y" default="0.0"/>
+  <arg name="map_file" default="$(find husky)/maps/playpen_map.yaml"/>
+
 
   <include file="$(find husky_gazebo)/launch/playpen.launch"/>
 
   <!-- FER-LAMOR -->
   <include file="$(find husky)/launch/spawn_robots.launch">
-    <arg name="h1_x" value="0.0"/>
-    <arg name="h1_y" value="0.0"/>
-    <arg name="h2_x" value="-7.0"/>
-    <arg name="h2_y" value="0.0"/>
+    <arg name="h1_x" value="$(arg husky1_x)"/>
+    <arg name="h1_y" value="$(arg husky1_y)"/>
+    <arg name="h2_x" value="$(arg husky2_x)"/>
+    <arg name="h2_y" value="$(arg husky2_y)"/>
   </include>
   <include file="$(find husky)/launch/multi_amcl.launch">
-    <arg name="h1_x" value="0.0"/>
-    <arg name="h1_y" value="0.0"/>
-    <arg name="h2_x" value="-7.0"/>
-    <arg name="h2_y" value="0.0"/>
-    <arg name="map_file" value="$(find husky)/maps/playpen_map.yaml"/>
+    <arg name="h1_x" value="$(arg husky1_x)"/>
+    <arg name="h1_y" value="$(arg husky1_y)"/>
+    <arg name="h2_x" value="$(arg husky2_x)"/>
+    <arg name="h2_y" value="$(arg husky2_y)"/>
+    <arg name="map_file" value="$(arg map_file)"/>
   </include>
+
   <include file="$(find dip_rad)/launch/rviz_2_husky_launch.launch"/>
 
   <!-- My script -->

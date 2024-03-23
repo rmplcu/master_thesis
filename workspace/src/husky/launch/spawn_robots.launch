@@ -10,7 +10,7 @@
   <group ns="/husky1"> <!-- ne smijes ovo maknut jer ti nece bit frameovi od drugog huskyja nego ce bit kolizija -->
   <!-- <group> -->
     <param name="tf_prefix" value="husky1_tf" />
-    <include file="$(find dip_rad)/launch/spawn_husky_modified.launch">
+    <include file="$(find husky)/launch/spawn_single_robot.launch">
       <!-- <env name="ROBOT_NAMESPACE" value="/husky1"/>
       <env name="HUSKY_UST10_ENABLED" value="1"/> 
       <env name="HUSKY_UST10_TOPIC" value="/husky1/front/scan"/> ovo uopce ne setupa env-ove ?? -->
@@ -27,9 +27,9 @@
   
   <group ns="/husky2">
   <!-- <group> -->
-    <param name="tf_prefix" value="husky2_tf" /> 
+    <param name="tf_prefix" value="husky2_tf" />
     <!-- <include file="$(find husky_gazebo)/launch/spawn_husky.launch"> -->
-    <include file="$(find dip_rad)/launch/spawn_husky_modified.launch">
+    <include file="$(find husky)/launch/spawn_single_robot.launch">
       <!-- <env name="ROBOT_NAMESPACE" value="/husky2"/>
       <env name="HUSKY_UST10_TOPIC" value="/husky2/front/scan"/>  -->
       <arg name="joystick" value="false" />

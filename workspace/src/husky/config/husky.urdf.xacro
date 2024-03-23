@@ -24,6 +24,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <robot name="husky" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:arg name="tf_prefix" default="husky1_tf" />
+
+
   <!-- IMU Link -->
   <xacro:arg name="imu_xyz"     default="$(optenv HUSKY_IMU_XYZ 0.19 0 0.149)"/>
   <xacro:arg name="imu_rpy"     default="$(optenv HUSKY_IMU_RPY 0 -1.5708 3.1416)"/>
@@ -135,7 +139,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <xacro:arg name="outdoornav_configuration" default="$(optenv OUTDOORNAV_CONFIGURATION standard)" />
 
   <!-- Included URDF/XACRO Files -->
-  <xacro:include filename="$(find husky_description)/urdf/accessories/hokuyo_ust10.urdf.xacro" />
+  <!-- <xacro:include filename="$(find husky_description)/urdf/accessories/hokuyo_ust10.urdf.xacro" /> -->
+  <xacro:include filename="$(find dip_rad)/models/hokuyo_ust10.urdf.xacro" />
   <xacro:include filename="$(find husky_description)/urdf/accessories/intel_realsense.urdf.xacro"/>
   <xacro:include filename="$(find husky_description)/urdf/accessories/flir_blackfly_mount.urdf.xacro"/>
   <xacro:include filename="$(find husky_description)/urdf/accessories/sensor_arch.urdf.xacro"/>
@@ -180,6 +185,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         <box size="${base_x_size*4/5} ${base_y_size} ${base_z_size/2-0.02}"/>
       </geometry>
     </collision>
+
+    <!-- i dalje slide-a i sa ovim -->
+    <!-- <friction>
+        <ode>
+            <mu>100000.0</mu>  Set the coefficient of friction
+            <mu2>100000.0</mu2> Set the second coefficient of friction (for spinning)
+        </ode>
+    </friction> -->
+
+
   </link>
 
   <!-- Base footprint is on the ground under the robot -->
@@ -263,7 +278,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     Hokuyo UST10 Primary and Secondary Laser Scans
   -->
   <xacro:if value="$(arg laser_ust10_front_enabled)">
-    <xacro:hokuyo_ust10_mount topic="$(arg laser_ust10_front_topic)" prefix="$(arg laser_ust10_front_prefix)" parent_link="$(arg laser_ust10_front_parent)">
+    <!-- <xacro:hokuyo_ust10_mount topic="$(arg laser_ust10_front_topic)" prefix="$(arg laser_ust10_front_prefix)" parent_link="$(arg laser_ust10_front_parent)"> -->
+    <xacro:hokuyo_ust10_mount topic="$(arg laser_ust10_front_topic)" prefix="$(arg laser_ust10_front_prefix)" parent_link="$(arg laser_ust10_front_parent)"
+                              robot_namespace="$(arg robot_namespace)">
         <origin xyz="$(arg laser_ust10_front_xyz)" rpy="$(arg laser_ust10_front_rpy)" />
       </xacro:hokuyo_ust10_mount>
   </xacro:if>
@@ -377,8 +394,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
       <robotNamespace>$(arg robot_namespace)</robotNamespace>
       <updateRate>50.0</updateRate>
+      <frameId>$(arg tf_prefix)/base_link</frameId>
       <bodyName>base_link</bodyName>
-      <frameId>$(arg tfpre)/base_link</frameId>
       <topicName>imu/data</topicName>
       <accelDrift>0.005 0.005 0.005</accelDrift>
       <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
@@ -389,11 +406,47 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     </plugin>
   </gazebo>
 
+  <gazebo>
+    <plugin name="gps_controller" filename="libhector_gazebo_ros_gps.so">
+      <robotNamespace>$(arg robot_namespace)</robotNamespace>
+      <updateRate>40</updateRate>
+      <!-- <frameId>base_link</frameId> -->
+      <frameId>$(arg tf_prefix)/base_link</frameId>
+      <bodyName>base_link</bodyName>
+      <topicName>navsat/fix</topicName>
+      <velocityTopicName>navsat/vel</velocityTopicName>
+      <referenceLatitude>$(optenv GAZEBO_WORLD_LAT 49.9)</referenceLatitude>
+      <referenceLongitude>$(optenv GAZEBO_WORLD_LON 8.9)</referenceLongitude>
+      <referenceHeading>90</referenceHeading>
+      <referenceAltitude>0</referenceAltitude>
+      <drift>0.0001 0.0001 0.0001</drift>
+    </plugin>
+  </gazebo>
+
+
+
+   <!-- gazebo odometry, krivi su frameovi nez kako fixat... -->
+  <!-- <gazebo>
+    <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+        <robotNamespace>$(arg robot_namespace)</robotNamespace>
+        <frameId>$(arg tf_prefix)/base_link</frameId>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>20.0</updateRate>        
+        <bodyName>base_link</bodyName>        
+        <topicName>ground_truth/state</topicName>
+        <gaussianNoise>0.01</gaussianNoise>
+        <frameName>map</frameName>
+        <xyzOffsets>0 0 0</xyzOffsets>
+        <rpyOffsets>0 0 0</rpyOffsets>
+    </plugin>
+  </gazebo> -->
+
+
 
   <!-- Optional custom includes. -->
-  <xacro:include filename="$(arg urdf_extras)" />
+  <!-- <xacro:include filename="$(arg urdf_extras)" /> -->
 
   <!-- Optional for Clearpath internal softwares -->
-  <xacro:include filename="$(arg cpr_urdf_extras)" />
+  <!-- <xacro:include filename="$(arg cpr_urdf_extras)" /> -->
 
 </robot>
