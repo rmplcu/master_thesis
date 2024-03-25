@@ -1,4 +1,8 @@
 credentials.txt
 /workspace/build/
 /workspace/devel/
-/workspace/src/unizg-fer-lamor-2024-bparo-diplomski-bb92b545fb03
+/workspace/src/unizg-fer-lamor-2024-bparo-diplomski-bb92b545fb03/
+/ros_motion_planning/
+/osqp/
+/osqp-eigen/
+resources.txt
