@@ -31,6 +31,8 @@
       <arg name="node_name_prefix" value="$(arg node_name_prefix)"/>
       <arg name="initial_pose_x" value="$(arg h1_x)"/>
       <arg name="initial_pose_y" value="$(arg h1_y)"/>
+      <arg name="initial_pose_a" value="3.1415"/> yaw
+
     </include>
   </group>
 

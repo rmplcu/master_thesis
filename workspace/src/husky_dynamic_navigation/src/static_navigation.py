@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 import actionlib
 from actionlib_msgs.msg import GoalStatus

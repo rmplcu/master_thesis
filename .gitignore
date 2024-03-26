@@ -5,4 +5,7 @@ credentials.txt
 /ros_motion_planning/
 /osqp/
 /osqp-eigen/
+/mpc_local_planner/
+/workspace/src/mpc_local_planner/
+/workspace/src/mpc_local_planner_msgs/
 resources.txt
