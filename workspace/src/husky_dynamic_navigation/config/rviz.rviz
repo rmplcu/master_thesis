@@ -8,11 +8,15 @@ Panels:
         - /Robot11
         - /Robot11/Sensing1/PoseWithCovariance1/Covariance1/Position1
         - /Robot11/Sensing1/PoseWithCovariance1/Covariance1/Orientation1
+        - /Robot11/Navigation1
+        - /Robot11/Navigation1/Local Plan1
         - /Robot21
         - /Robot21/Sensing1
         - /Robot21/Sensing1/PoseWithCovariance1
         - /Robot21/Sensing1/PoseWithCovariance1/Covariance1
         - /Robot21/Sensing1/PoseWithCovariance1/Covariance1/Position1
+        - /Robot21/Navigation1
+        - /Robot21/Navigation1/Local Plan1
       Splitter Ratio: 0.49492400884628296
     Tree Height: 284
   - Class: rviz/Selection
@@ -412,7 +416,7 @@ Visualization Manager:
               Radius: 0.029999999329447746
               Shaft Diameter: 0.10000000149011612
               Shaft Length: 0.10000000149011612
-              Topic: /husky1/move_base/MPCLocalPlannerROS/local_plan
+              Topic: /husky1/move_base/MpcLocalPlannerROS/local_plan
               Unreliable: false
               Value: true
           Enabled: true
@@ -763,7 +767,7 @@ Visualization Manager:
               Radius: 0.029999999329447746
               Shaft Diameter: 0.10000000149011612
               Shaft Length: 0.10000000149011612
-              Topic: /husky2/move_base/DWAPlannerROS/local_plan
+              Topic: /husky2/move_base/MpcLocalPlannerROS/local_plan
               Unreliable: false
               Value: true
           Enabled: true
@@ -812,7 +816,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 13.378705024719238
+      Distance: 15.775696754455566
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

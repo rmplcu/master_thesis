@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import rospy 
-from workspace.src.husky_dynamic_navigation.src.husky_dynamic_navigation.control_husky import ControlHusky
+from husky_dynamic_navigation.control_husky import ControlHusky
 
 if __name__ == '__main__':
     rospy.init_node('static_navigation_multiple_huskies_node')

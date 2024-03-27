@@ -2,9 +2,10 @@
 <launch>
   <arg name="h1_x" default="0.0"/>
   <arg name="h1_y" default="0.0"/>
+  <arg name="h1_name" default="husky1"/>
   <arg name="h2_x" default="0.0"/>
   <arg name="h2_y" default="0.0"/>
-
+  <arg name="h2_name" default="husky2"/>
 
   <!-- Run the map server -->
   <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
@@ -37,11 +38,11 @@
   </group>
 
   <!--- Run Move Base -->
-  <group ns="/husky1">
+  <group ns="/$(arg h1_name)">
     <include file="$(find husky_dynamic_navigation)/launch/move_base_husky.launch">
       <!-- <include file="$(find dip_rad)/launch/move_base_husky_teb.launch"> za koristit teb umjesto dwa local plannera -->
-      <param name="tf_prefix" value="husky1_tf" />
-      <arg name="cmd_vel_topic" value="/husky1/cmd_vel"/> 
+      <param name="tf_prefix" value="$(arg h1_name)_tf" />
+      <arg name="cmd_vel_topic" value="/$(arg h1_name)/cmd_vel"/> 
       <!-- <arg name="odom_topic" value="/husky1/husky_velocity_controller/odom"/> -->
       <arg name="odom_topic" value="/husky1/odometry/filtered"/> <!-- nema neki utjecaj na ponasanje movebasea -->
       <!-- <arg name="odom_topic" value="/husky1/odom"/> -->
@@ -51,6 +52,14 @@
       <arg name="scan_topic" value="/husky1/front/scan"/>
     </include>
   </group>
+
+  <!-- Convert costmap to dynamic obstacles (?)
+  <node name="$(arg h1_name)/standalone_converter" pkg="costmap_converter" type="standalone_converter" output="screen">
+    <param name="converter_plugin" value="costmap_converter::CostmapToDynamicObstacles" />
+    <param name="costmap_topic" value="/$(arg h1_name)/move_base/local_costmap/costmap" />
+    <param name="odom_topic" value="/$(arg h1_name)/odometry/filtered" />
+  </node>
+  -->
 
   <!-- husky2 -->
   <!-- <group ns="/husky2"> -->
