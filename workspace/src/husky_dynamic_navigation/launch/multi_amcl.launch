@@ -26,7 +26,7 @@
     <!--- Run AMCL -->
     <arg name="node_name_prefix" value="husky1"/>
     <include file="$(find husky_dynamic_navigation)/launch/single_amcl.launch">
-      <arg name="scan_topic" value="/husky1/front/scan"/>
+      <arg name="scan_topic" value="/husky1/scan"/>
       <arg name="odom_frame_id" value="husky1_tf/odom"/>
       <arg name="base_frame_id" value="husky1_tf/base_link"/>
       <arg name="node_name_prefix" value="$(arg node_name_prefix)"/>
@@ -49,17 +49,9 @@
       <!-- <arg name="odom_topic" value="/husky1/ground_truth/state"/> -->
       <!-- <arg name="node_name_prefix" value="$(arg node_name_prefix)"/> -->
       <arg name="tf_prefix" value="husky1_tf"/>
-      <arg name="scan_topic" value="/husky1/front/scan"/>
+      <arg name="scan_topic" value="/husky1/scan"/>
     </include>
   </group>
-
-  <!-- Convert costmap to dynamic obstacles (?)
-  <node name="$(arg h1_name)/standalone_converter" pkg="costmap_converter" type="standalone_converter" output="screen">
-    <param name="converter_plugin" value="costmap_converter::CostmapToDynamicObstacles" />
-    <param name="costmap_topic" value="/$(arg h1_name)/move_base/local_costmap/costmap" />
-    <param name="odom_topic" value="/$(arg h1_name)/odometry/filtered" />
-  </node>
-  -->
 
   <!-- husky2 -->
   <!-- <group ns="/husky2"> -->
@@ -67,7 +59,7 @@
     <!--- Run AMCL -->
     <arg name="node_name_prefix" value="husky2"/>
     <include file="$(find husky_dynamic_navigation)/launch/single_amcl.launch">
-      <arg name="scan_topic" value="/husky2/front/scan"/>
+      <arg name="scan_topic" value="/husky2/scan"/>
       <arg name="odom_frame_id" value="husky2_tf/odom"/>
       <arg name="base_frame_id" value="husky2_tf/base_link"/>
       <arg name="node_name_prefix" value="$(arg node_name_prefix)"/>
@@ -89,7 +81,7 @@
       <!-- <arg name="odom_topic" value="/husky2/ground_truth/state"/> -->
       <!-- <arg name="node_name_prefix" value="$(arg node_name_prefix)"/> -->
       <arg name="tf_prefix" value="husky2_tf"/>
-      <arg name="scan_topic" value="/husky2/front/scan"/>
+      <arg name="scan_topic" value="/husky2/scan"/>
     </include>
   </group>
 

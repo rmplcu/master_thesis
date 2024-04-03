@@ -13,14 +13,27 @@
 
   <!-- potrebno kako bi mogao customizeat parametre za vise huskija inace moras exportat env var a to vrijedi samo za jedan terminal pa i za jednog robota, a env unutar launcha mi nije radilo-->
   <arg name="laser_ust10_front_enabled" value="1" />
+  <arg name="laser_ust10_rear_enabled" value="1" />
+  <arg name="laser_3d_enabled" value="0"/> <!-- WARNING: not completely set up and extremely slow computation -->
   
   <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/config/husky.urdf.xacro'
-    robot_namespace:=$(arg robot_namespace) laser_ust10_front_enabled:=$(arg laser_ust10_front_enabled)
+    robot_namespace:=$(arg robot_namespace) laser_ust10_front_enabled:=$(arg laser_ust10_front_enabled) laser_3d_enabled:=$(arg laser_3d_enabled) laser_ust10_rear_enabled:=$(arg laser_ust10_rear_enabled)
     tf_prefix:=$(arg husky_num)_tf" /> <!-- ne salje se ime topica, pa je po defaultu /front/scan i onda se zbog namesapcea ispred doda /husky1 pa bude /husky1/front/scan -->
 
   <!-- Load controller configuration -->
   <rosparam command="load" file="$(find husky_dynamic_navigation)/config/control_$(arg husky_num).yaml" />
 
+  <!-- Laser merger node -->
+  <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger">
+    <param name="destination_frame" value="$(arg husky_num)_tf/odom"/>
+    <param name="cloud_destination_topic" value="/$(arg husky_num)/merged_cloud" />
+    <param name="scan_destination_topic" value="/$(arg husky_num)/scan"/>
+    <param name="laserscan_topics" value ="/$(arg husky_num)/front/scan /$(arg husky_num)/rear/scan" />
+    <param name="angle_min" value="-3.14"/>
+    <param name="angle_max" value="3.14"/>
+    <param name="range_min" value="0.1"/>
+    <param name="range_max" value="30.0"/>
+  </node>
 
   <!-- Spawn controllers -->
   <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="husky_joint_publisher husky_velocity_controller"/>
@@ -51,5 +64,4 @@
 
   <!-- Override the default control parameters, see config/empty.yaml for default. -->
   <rosparam command="load" file="$(arg config_extras)" subst_value="true" />
-
 </launch>

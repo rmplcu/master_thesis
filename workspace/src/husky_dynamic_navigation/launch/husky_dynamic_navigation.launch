@@ -9,7 +9,7 @@
 
 
   <include file="$(find husky_gazebo)/launch/playpen.launch"/>
-
+  
   <!-- FER-LAMOR -->
   <include file="$(find husky_dynamic_navigation)/launch/spawn_robots.launch">
     <arg name="h1_x" value="$(arg husky1_x)"/>
@@ -33,5 +33,5 @@
 
 
   <!-- My script -->
-  <node pkg="husky_dynamic_navigation" name="huskies_static_navigation" type="static_navigation_multiple_huskies.py" launch-prefix="gnome-terminal --tab -- "/>
+  <!--node pkg="husky_dynamic_navigation" name="huskies_static_navigation" type="static_navigation_multiple_huskies.py" launch-prefix="gnome-terminal -->tab -- "/>
 </launch>

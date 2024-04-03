@@ -73,11 +73,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
     <param name="local_costmap/global_frame" value="$(arg tf_prefix)/odom"/>
     <param name="local_costmap/robot_base_frame" value="$(arg tf_prefix)/base_link"/>
     <param name="local_costmap/obstacles_laser/laser/topic" value="$(arg scan_topic)"/>
-    <param name="local_costmap/update_frequency" value="4"/> <!-- Tuned in order to meet update rate with current hardware capabilities -->
+    <param name="local_costmap/update_frequency" value="5.0"/> <!-- Tuned in order to meet update rate with current hardware capabilities -->
 
-    <param name="MPCLocalPlannerROS/global_frame_id" value="$(arg tf_prefix)/odom"/>
-    <!--param name="MPCLocalPlannerROS/odom_topic" value="$(arg tf_prefix)/odometry/filtered"/-->
-    <param name="MPCLocalPlannerROS/odom_topic" value="$(arg tf_prefix)/husky_velocity_controller/odom"/>
+    <param name="MpcLocalPlannerROS/global_frame_id" value="$(arg tf_prefix)/odom"/>
+    <!--param name="MpcLocalPlannerROS/odom_topic" value="$(arg tf_prefix)/odometry/filtered"/-->
+    <param name="MpcLocalPlannerROS/odom_topic" value="$(arg tf_prefix)/husky_velocity_controller/odom"/>
   </node>
 
 </launch>

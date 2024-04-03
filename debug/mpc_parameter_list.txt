@@ -88,6 +88,7 @@
 /solver/ipopt/ipopt_string_options
 /solver/ipopt/iterations
 /solver/ipopt/max_cpu_time
+
 /solver/lsq_lm/iterations
 /solver/lsq_lm/weight_adapt_factor_bounds
 /solver/lsq_lm/weight_adapt_factor_eq

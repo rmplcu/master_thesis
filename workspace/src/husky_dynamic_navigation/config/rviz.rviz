@@ -5,17 +5,13 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Robot11
+        - /Robot11/Sensing1
+        - /Robot11/Sensing1/Scans1/MergedScan1
         - /Robot11/Sensing1/PoseWithCovariance1/Covariance1/Position1
         - /Robot11/Sensing1/PoseWithCovariance1/Covariance1/Orientation1
-        - /Robot11/Navigation1
         - /Robot11/Navigation1/Local Plan1
-        - /Robot21
-        - /Robot21/Sensing1
-        - /Robot21/Sensing1/PoseWithCovariance1
         - /Robot21/Sensing1/PoseWithCovariance1/Covariance1
         - /Robot21/Sensing1/PoseWithCovariance1/Covariance1/Position1
-        - /Robot21/Navigation1
         - /Robot21/Navigation1/Local Plan1
       Splitter Ratio: 0.49492400884628296
     Tree Height: 284
@@ -35,7 +31,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: FrontLaserScan
   - Class: rviz/Displays
     Help Height: 70
     Name: Displays
@@ -139,6 +135,15 @@ Visualization Manager:
               Show Axes: false
               Show Trail: false
               Value: true
+            rear_laser:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            rear_laser_mount:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
             rear_left_wheel_link:
               Alpha: 1
               Show Axes: false
@@ -180,6 +185,94 @@ Visualization Manager:
           Visual Enabled: true
         - Class: rviz/Group
           Displays:
+            - Class: rviz/Group
+              Displays:
+                - Alpha: 1
+                  Autocompute Intensity Bounds: true
+                  Autocompute Value Bounds:
+                    Max Value: 0.4059300124645233
+                    Min Value: 0.4059300124645233
+                    Value: true
+                  Axis: Z
+                  Channel Name: intensity
+                  Class: rviz/LaserScan
+                  Color: 255; 255; 127
+                  Color Transformer: FlatColor
+                  Decay Time: 0
+                  Enabled: false
+                  Invert Rainbow: false
+                  Max Color: 255; 255; 255
+                  Min Color: 0; 0; 0
+                  Name: FrontLaserScan
+                  Position Transformer: XYZ
+                  Queue Size: 10
+                  Selectable: true
+                  Size (Pixels): 3
+                  Size (m): 0.029999999329447746
+                  Style: Flat Squares
+                  Topic: husky1/front/scan
+                  Unreliable: false
+                  Use Fixed Frame: true
+                  Use rainbow: true
+                  Value: false
+                - Alpha: 1
+                  Autocompute Intensity Bounds: true
+                  Autocompute Value Bounds:
+                    Max Value: 10
+                    Min Value: -10
+                    Value: true
+                  Axis: Z
+                  Channel Name: intensity
+                  Class: rviz/LaserScan
+                  Color: 255; 255; 255
+                  Color Transformer: Intensity
+                  Decay Time: 0
+                  Enabled: false
+                  Invert Rainbow: false
+                  Max Color: 255; 255; 255
+                  Min Color: 0; 0; 0
+                  Name: RearLaserScan
+                  Position Transformer: XYZ
+                  Queue Size: 10
+                  Selectable: true
+                  Size (Pixels): 3
+                  Size (m): 0.009999999776482582
+                  Style: Flat Squares
+                  Topic: /husky1/rear/scan
+                  Unreliable: false
+                  Use Fixed Frame: true
+                  Use rainbow: true
+                  Value: false
+                - Alpha: 1
+                  Autocompute Intensity Bounds: true
+                  Autocompute Value Bounds:
+                    Max Value: 0
+                    Min Value: 0
+                    Value: true
+                  Axis: Z
+                  Channel Name: x
+                  Class: rviz/LaserScan
+                  Color: 239; 41; 41
+                  Color Transformer: Intensity
+                  Decay Time: 0
+                  Enabled: true
+                  Invert Rainbow: false
+                  Max Color: 239; 41; 41
+                  Min Color: 252; 233; 79
+                  Name: MergedScan
+                  Position Transformer: XYZ
+                  Queue Size: 10
+                  Selectable: true
+                  Size (Pixels): 3
+                  Size (m): 0.009999999776482582
+                  Style: Points
+                  Topic: /husky1/scan
+                  Unreliable: false
+                  Use Fixed Frame: true
+                  Use rainbow: false
+                  Value: true
+              Enabled: true
+              Name: Scans
             - Alpha: 1
               Axes Length: 1
               Axes Radius: 0.10000000149011612
@@ -214,34 +307,6 @@ Visualization Manager:
             - Alpha: 1
               Autocompute Intensity Bounds: true
               Autocompute Value Bounds:
-                Max Value: 0.4059300124645233
-                Min Value: 0.4059300124645233
-                Value: true
-              Axis: Z
-              Channel Name: intensity
-              Class: rviz/LaserScan
-              Color: 255; 255; 127
-              Color Transformer: FlatColor
-              Decay Time: 0
-              Enabled: true
-              Invert Rainbow: false
-              Max Color: 255; 255; 255
-              Min Color: 0; 0; 0
-              Name: LaserScan
-              Position Transformer: XYZ
-              Queue Size: 10
-              Selectable: true
-              Size (Pixels): 3
-              Size (m): 0.029999999329447746
-              Style: Flat Squares
-              Topic: husky1/front/scan
-              Unreliable: false
-              Use Fixed Frame: true
-              Use rainbow: true
-              Value: true
-            - Alpha: 1
-              Autocompute Intensity Bounds: true
-              Autocompute Value Bounds:
                 Max Value: 10
                 Min Value: -10
                 Value: true
@@ -251,7 +316,7 @@ Visualization Manager:
               Color: 255; 255; 255
               Color Transformer: RGB8
               Decay Time: 0
-              Enabled: true
+              Enabled: false
               Invert Rainbow: false
               Max Color: 255; 255; 255
               Min Color: 0; 0; 0
@@ -262,11 +327,11 @@ Visualization Manager:
               Size (Pixels): 3
               Size (m): 0.009999999776482582
               Style: Flat Squares
-              Topic: /camera/depth/points
+              Topic: /husky1/points
               Unreliable: false
               Use Fixed Frame: true
               Use rainbow: true
-              Value: true
+              Value: false
             - Acceleration properties:
                 Acc. vector alpha: 0.5
                 Acc. vector color: 85; 0; 255
@@ -490,6 +555,15 @@ Visualization Manager:
               Show Axes: false
               Show Trail: false
               Value: true
+            rear_laser:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            rear_laser_mount:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
             rear_left_wheel_link:
               Alpha: 1
               Show Axes: false
@@ -531,6 +605,94 @@ Visualization Manager:
           Visual Enabled: true
         - Class: rviz/Group
           Displays:
+            - Class: rviz/Group
+              Displays:
+                - Alpha: 1
+                  Autocompute Intensity Bounds: true
+                  Autocompute Value Bounds:
+                    Max Value: 0.4059300124645233
+                    Min Value: 0.4059300124645233
+                    Value: true
+                  Axis: Z
+                  Channel Name: intensity
+                  Class: rviz/LaserScan
+                  Color: 255; 255; 127
+                  Color Transformer: FlatColor
+                  Decay Time: 0
+                  Enabled: false
+                  Invert Rainbow: false
+                  Max Color: 255; 255; 255
+                  Min Color: 0; 0; 0
+                  Name: FrontLaserScan
+                  Position Transformer: XYZ
+                  Queue Size: 10
+                  Selectable: true
+                  Size (Pixels): 3
+                  Size (m): 0.029999999329447746
+                  Style: Flat Squares
+                  Topic: husky2/front/scan
+                  Unreliable: false
+                  Use Fixed Frame: true
+                  Use rainbow: true
+                  Value: false
+                - Alpha: 1
+                  Autocompute Intensity Bounds: true
+                  Autocompute Value Bounds:
+                    Max Value: 10
+                    Min Value: -10
+                    Value: true
+                  Axis: Z
+                  Channel Name: intensity
+                  Class: rviz/LaserScan
+                  Color: 255; 255; 255
+                  Color Transformer: Intensity
+                  Decay Time: 0
+                  Enabled: false
+                  Invert Rainbow: false
+                  Max Color: 255; 255; 255
+                  Min Color: 0; 0; 0
+                  Name: RearLaserScan
+                  Position Transformer: XYZ
+                  Queue Size: 10
+                  Selectable: true
+                  Size (Pixels): 3
+                  Size (m): 0.009999999776482582
+                  Style: Flat Squares
+                  Topic: /husky2/rear/scan
+                  Unreliable: false
+                  Use Fixed Frame: true
+                  Use rainbow: true
+                  Value: false
+                - Alpha: 1
+                  Autocompute Intensity Bounds: true
+                  Autocompute Value Bounds:
+                    Max Value: 10
+                    Min Value: -10
+                    Value: true
+                  Axis: Z
+                  Channel Name: y
+                  Class: rviz/LaserScan
+                  Color: 255; 255; 255
+                  Color Transformer: Intensity
+                  Decay Time: 0
+                  Enabled: true
+                  Invert Rainbow: false
+                  Max Color: 239; 41; 41
+                  Min Color: 252; 233; 79
+                  Name: MergedScan
+                  Position Transformer: XYZ
+                  Queue Size: 10
+                  Selectable: true
+                  Size (Pixels): 3
+                  Size (m): 0.009999999776482582
+                  Style: Points
+                  Topic: /husky2/scan
+                  Unreliable: false
+                  Use Fixed Frame: true
+                  Use rainbow: false
+                  Value: true
+              Enabled: true
+              Name: Scans
             - Alpha: 1
               Axes Length: 1
               Axes Radius: 0.10000000149011612
@@ -565,34 +727,6 @@ Visualization Manager:
             - Alpha: 1
               Autocompute Intensity Bounds: true
               Autocompute Value Bounds:
-                Max Value: 0.4059300124645233
-                Min Value: 0.4059300124645233
-                Value: true
-              Axis: Z
-              Channel Name: intensity
-              Class: rviz/LaserScan
-              Color: 255; 255; 127
-              Color Transformer: FlatColor
-              Decay Time: 0
-              Enabled: true
-              Invert Rainbow: false
-              Max Color: 255; 255; 255
-              Min Color: 0; 0; 0
-              Name: LaserScan
-              Position Transformer: XYZ
-              Queue Size: 10
-              Selectable: true
-              Size (Pixels): 3
-              Size (m): 0.029999999329447746
-              Style: Flat Squares
-              Topic: husky2/front/scan
-              Unreliable: false
-              Use Fixed Frame: true
-              Use rainbow: true
-              Value: true
-            - Alpha: 1
-              Autocompute Intensity Bounds: true
-              Autocompute Value Bounds:
                 Max Value: 10
                 Min Value: -10
                 Value: true
@@ -602,7 +736,7 @@ Visualization Manager:
               Color: 255; 255; 255
               Color Transformer: RGB8
               Decay Time: 0
-              Enabled: true
+              Enabled: false
               Invert Rainbow: false
               Max Color: 255; 255; 255
               Min Color: 0; 0; 0
@@ -613,11 +747,11 @@ Visualization Manager:
               Size (Pixels): 3
               Size (m): 0.009999999776482582
               Style: Flat Squares
-              Topic: /camera/depth/points
+              Topic: /husky/points
               Unreliable: false
               Use Fixed Frame: true
               Use rainbow: true
-              Value: true
+              Value: false
             - Acceleration properties:
                 Acc. vector alpha: 0.5
                 Acc. vector color: 85; 0; 255
@@ -816,7 +950,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 15.775696754455566
+      Distance: 14.878378868103027
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -824,17 +958,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.69095778465271
-        Y: -0.39667844772338867
-        Z: 0.1550499051809311
+        X: 0.5725892186164856
+        Y: 0.6968482732772827
+        Z: 0.9401646256446838
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.4397964477539062
+      Pitch: 0.9297968745231628
       Target Frame: <Fixed Frame>
-      Yaw: 4.870412826538086
+      Yaw: 4.930427074432373
     Saved: ~
 Window Geometry:
   Displays:
