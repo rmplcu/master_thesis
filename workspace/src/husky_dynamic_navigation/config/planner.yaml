@@ -4,22 +4,23 @@ clearing_rotation_allowed: false # No rotation when stuck
 controller_frequency: 5.0 # Controller will execute every x hz 
 controller_patience: 15.0 
 
-planner_patience: 1.0 
+planner_patience: 1.0
+
+transform_tolerance: 0.5
 
 NavfnROS:
   allow_unknown: true # Specifies whether or not to allow navfn to create plans that traverse unknown space.
   default_tolerance: 0.1 # A tolerance on the goal point for the planner.
 
 MpcLocalPlannerROS:
+  holonomic_robot: false
 
-  odom_topic: odom
-    
-   ## Robot settings
+  ## Robot settings
   robot:
     type: "unicycle"
     unicycle:
-      max_vel_x: 0.4
-      max_vel_x_backwards: 0.2
+      max_vel_x: 0.3
+      max_vel_x_backwards: 0.0
       max_vel_theta: 0.3
       acc_lim_x: 0.2 # deactive bounds with zero
       dec_lim_x: 0.2 # deactive bounds with zero
@@ -27,23 +28,25 @@ MpcLocalPlannerROS:
 
   ## Footprint model for collision avoidance
   footprint_model:
-    type: "point"
+    type: "polygon"
+    vertices: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
     is_footprint_dynamic: False
 
   ## Collision avoidance
   collision_avoidance:
     min_obstacle_dist: 0.2 # Note, this parameter must be chosen w.r.t. the footprint_model
-    enable_dynamic_obstacles: False
+    enable_dynamic_obstacles: True
     force_inclusion_dist: 0.5
     cutoff_dist: 2.5 
     include_costmap_obstacles: True
     costmap_obstacles_behind_robot_dist: 1.5
+    collision_check_no_poses: 5
 
   ## Planning grid 
   grid:
     type: "fd_grid"
-    grid_size_ref: 20
-    dt_ref: 0.3
+    grid_size_ref: 30 #horizon
+    dt_ref: 0.2 #temporal resolution
     xf_fixed: [True, True, True]
     warm_start: True
     collocation_method: "forward_differences"
@@ -82,13 +85,13 @@ MpcLocalPlannerROS:
 
   ## Controller options
   controller:
-    outer_ocp_iterations: 5
+    outer_ocp_iterations: 3
     xy_goal_tolerance: 0.2
-    yaw_goal_tolerance: 0.1
+    yaw_goal_tolerance: 1.0
     global_plan_overwrite_orientation: true
-    global_plan_prune_distance: 1.0
+    global_plan_prune_distance: 4.0
     allow_init_with_backward_motion: True
-    max_global_plan_lookahead_dist: 1.5 
+    max_global_plan_lookahead_dist: 5.0
     global_plan_viapoint_sep: 5.5
     force_reinit_new_goal_dist: 1.0
     force_reinit_new_goal_angular: 1.57
@@ -98,7 +101,7 @@ MpcLocalPlannerROS:
     
   ## Solver settings
   solver:
-    type: "ipopt"
+    type: "lsq_lm"
     ipopt:
       iterations: 100
       max_cpu_time: -1.0
@@ -106,7 +109,7 @@ MpcLocalPlannerROS:
         tol: 1e-4
       ipopt_string_options:
         linear_solver: "mumps" 
-        hessian_approximation: "exact" # exact or limited-memory
+        hessian_approximation: "limited-memory" # exact or limited-memory
     lsq_lm:
       iterations: 10
       weight_init_eq: 2

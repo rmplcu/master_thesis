@@ -26,7 +26,6 @@
   </include>
 
   <!--
-
   <include file="$(find dip_rad)/launch/rviz_2_husky_launch.launch"/>
   -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find husky_dynamic_navigation)/config/rviz.rviz"/>

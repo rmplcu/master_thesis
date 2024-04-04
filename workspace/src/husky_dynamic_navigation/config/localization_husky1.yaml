@@ -1,9 +1,6 @@
-# odom_frame: husky1_tf/odom 
-odom_frame: odom #nije potrebno ovo ispred husky1_tf jer koristis param tf_prefix
-base_link_frame: base_link
-# base_link_frame: husky1_tf/base_link
-# world_frame: husky1_tf/odom
-map_frame: map #nisam siguran da li ovo postane husky1_tf/map zbog tf prefixa..
+# need to set odom_frame, base_link_frame with namespaces (in move_base.launch)
+
+map_frame: map
 
 two_d_mode: true
 
@@ -11,7 +8,7 @@ predict_to_current_time: true
 
 frequency: 50
 
-# odom0: husky1_tf/husky_velocity_controller/odom
+# odom0: husky1/husky_velocity_controller/odom
 odom0: /husky1/husky_velocity_controller/odom
 odom0_config: [false, false, false,
                false, false, false,
@@ -21,7 +18,6 @@ odom0_config: [false, false, false,
 odom0_differential: false
 odom0_queue_size: 10
 
-# imu0: husky1_tf/imu/data
 imu0: /husky1/imu/data
 imu0_config: [false, false, false,
               true, true, true,

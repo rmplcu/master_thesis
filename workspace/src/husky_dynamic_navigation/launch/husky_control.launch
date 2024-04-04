@@ -8,31 +8,42 @@
 
   <arg name="husky_num" default="husky2" />
 
-  <arg name="config_extras"
-       default="$(eval optenv('HUSKY_CONFIG_EXTRAS', find('husky_control') + '/config/empty.yaml'))"/>
+  <arg name="config_extras" default="$(eval optenv('HUSKY_CONFIG_EXTRAS', find('husky_control') + '/config/empty.yaml'))"/>
 
   <!-- potrebno kako bi mogao customizeat parametre za vise huskija inace moras exportat env var a to vrijedi samo za jedan terminal pa i za jednog robota, a env unutar launcha mi nije radilo-->
-  <arg name="laser_ust10_front_enabled" value="1" />
-  <arg name="laser_ust10_rear_enabled" value="1" />
-  <arg name="laser_3d_enabled" value="0"/> <!-- WARNING: not completely set up and extremely slow computation -->
-  
+  <arg name="laser_ust10_front_enabled" value="0" />
+  <arg name="laser_ust10_rear_enabled" value="0" />
+  <arg name="laser_3d_enabled" value="0"/> <!-- WARNING: not completely set up and slow computation -->
+  <arg name="realsense_enabled" value="1"/>
+
   <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/config/husky.urdf.xacro'
-    robot_namespace:=$(arg robot_namespace) laser_ust10_front_enabled:=$(arg laser_ust10_front_enabled) laser_3d_enabled:=$(arg laser_3d_enabled) laser_ust10_rear_enabled:=$(arg laser_ust10_rear_enabled)
-    tf_prefix:=$(arg husky_num)_tf" /> <!-- ne salje se ime topica, pa je po defaultu /front/scan i onda se zbog namesapcea ispred doda /husky1 pa bude /husky1/front/scan -->
+    robot_namespace:=$(arg robot_namespace) laser_ust10_front_enabled:=$(arg laser_ust10_front_enabled) laser_3d_enabled:=$(arg laser_3d_enabled)
+    laser_ust10_rear_enabled:=$(arg laser_ust10_rear_enabled) realsense_enabled:=$(arg realsense_enabled) tf_prefix:=$(arg husky_num)_tf" />
 
   <!-- Load controller configuration -->
   <rosparam command="load" file="$(find husky_dynamic_navigation)/config/control_$(arg husky_num).yaml" />
 
+  <!-- PointCloud to laserscan -->
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan" if="$(arg realsense_enabled)">
+    <param name="target_frame" value="$(arg husky_num)_tf/base_link"/>
+
+    <remap from="scan" to="$(arg robot_namespace)/3d_scan" if="$(arg laser_ust10_front_enabled)"/>
+    <remap from="scan" to="$(arg robot_namespace)/scan" unless="$(arg laser_ust10_front_enabled)"/>
+    <remap from="cloud_in" to="$(arg robot_namespace)/realsense/depth/color/points"/>
+  </node>
+
   <!-- Laser merger node -->
-  <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger">
-    <param name="destination_frame" value="$(arg husky_num)_tf/odom"/>
-    <param name="cloud_destination_topic" value="/$(arg husky_num)/merged_cloud" />
+  <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" if="$(arg laser_ust10_front_enabled)">
+    <param name="destination_frame" value="$(arg husky_num)_tf/base_link"/>
+    <param name="cloud_destination_topic" value="/$(arg husky_num)/merged_cloud"/>
     <param name="scan_destination_topic" value="/$(arg husky_num)/scan"/>
-    <param name="laserscan_topics" value ="/$(arg husky_num)/front/scan /$(arg husky_num)/rear/scan" />
+
+    <param name="laserscan_topics" value="/$(arg husky_num)/front/scan /$(arg husky_num)/rear/scan" />
+
     <param name="angle_min" value="-3.14"/>
     <param name="angle_max" value="3.14"/>
     <param name="range_min" value="0.1"/>
-    <param name="range_max" value="30.0"/>
+    <param name="range_max" value="12.0"/>
   </node>
 
   <!-- Spawn controllers -->

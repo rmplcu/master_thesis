@@ -11,25 +11,17 @@
   <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
-  <!-- ovo kad bi ti bili map i odom preklopljeni a to nije istina, jedino kad bi oba robota spawnao u 0,0 i yaw=0 -->
-  <!-- <node name="static_transform_h1" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map husky1_tf/odom 100" />
-  <node name="static_transform_h2" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map husky2_tf/odom 100" /> -->
-  
-  <!-- bolje koristit amcl-ov tf_broadcast da ne moras ovo stalno nastimavat -->
-  <!-- <node name="static_transform_h1" pkg="tf" type="static_transform_publisher" args="-6.69 -6.62 0 0 0 0 map husky1_tf/odom 100" /> pomak i rotacija odom-a u odnosu na map
-  <node name="static_transform_h2" pkg="tf" type="static_transform_publisher" args="6.18 -1.34 0 0 0 0 map husky2_tf/odom 100" /> -->
-
-
   <!-- husky 1-->
-  <!-- <group ns="/husky1"> -->
-  <group> <!-- maknuo ns jer mi onda map topic bude /husky1/map a ne /map i ne mogu to nikako remapat nez zas -->
+  <group>
     <!--- Run AMCL -->
     <arg name="node_name_prefix" value="husky1"/>
     <include file="$(find husky_dynamic_navigation)/launch/single_amcl.launch">
       <arg name="scan_topic" value="/husky1/scan"/>
+      
       <arg name="odom_frame_id" value="husky1_tf/odom"/>
       <arg name="base_frame_id" value="husky1_tf/base_link"/>
       <arg name="node_name_prefix" value="$(arg node_name_prefix)"/>
+
       <arg name="initial_pose_x" value="$(arg h1_x)"/>
       <arg name="initial_pose_y" value="$(arg h1_y)"/>
       <arg name="initial_pose_a" value="3.1415"/> yaw
@@ -40,16 +32,15 @@
   <!--- Run Move Base -->
   <group ns="/$(arg h1_name)">
     <include file="$(find husky_dynamic_navigation)/launch/move_base_husky.launch">
-      <!-- <include file="$(find dip_rad)/launch/move_base_husky_teb.launch"> za koristit teb umjesto dwa local plannera -->
       <param name="tf_prefix" value="$(arg h1_name)_tf" />
-      <arg name="cmd_vel_topic" value="/$(arg h1_name)/cmd_vel"/> 
-      <!-- <arg name="odom_topic" value="/husky1/husky_velocity_controller/odom"/> -->
-      <arg name="odom_topic" value="/husky1/odometry/filtered"/> <!-- nema neki utjecaj na ponasanje movebasea -->
-      <!-- <arg name="odom_topic" value="/husky1/odom"/> -->
-      <!-- <arg name="odom_topic" value="/husky1/ground_truth/state"/> -->
-      <!-- <arg name="node_name_prefix" value="$(arg node_name_prefix)"/> -->
       <arg name="tf_prefix" value="husky1_tf"/>
+      
       <arg name="scan_topic" value="/husky1/scan"/>
+      <arg name="cmd_vel_topic" value="/$(arg h1_name)/cmd_vel"/> 
+      <arg name="odom_topic" value="/husky1/husky_velocity_controller/odom"/> -->
+      <!--arg name="odom_topic" value="/husky1/odometry/filtered"/-->
+
+      <!-- Use default local planner: MPC -->
     </include>
   </group>
 
@@ -72,16 +63,15 @@
   <!--- Run Move Base -->
   <group ns="/husky2">
     <include file="$(find husky_dynamic_navigation)/launch/move_base_husky.launch">
-      <!-- <include file="$(find dip_rad)/launch/move_base_husky_teb.launch"> za koristit teb umjesto dwa local plannera -->
       <param name="tf_prefix" value="husky2_tf" />
-      <arg name="cmd_vel_topic" value="/husky2/cmd_vel"/>
-      <!-- <arg name="odom_topic" value="/husky2/husky_velocity_controller/odom"/> -->
-      <arg name="odom_topic" value="/husky2/odometry/filtered"/>
-      <!-- <arg name="odom_topic" value="/husky2/odom"/> -->
-      <!-- <arg name="odom_topic" value="/husky2/ground_truth/state"/> -->
-      <!-- <arg name="node_name_prefix" value="$(arg node_name_prefix)"/> -->
       <arg name="tf_prefix" value="husky2_tf"/>
+
+      <arg name="cmd_vel_topic" value="/husky2/cmd_vel"/>
+      <arg name="odom_topic" value="/husky2/husky_velocity_controller/odom"/>
+      <!--arg name="odom_topic" value="/husky2/odometry/filtered"/-->
       <arg name="scan_topic" value="/husky2/scan"/>
+
+      <!-- Use default local planner: MPC -->
     </include>
   </group>
 
