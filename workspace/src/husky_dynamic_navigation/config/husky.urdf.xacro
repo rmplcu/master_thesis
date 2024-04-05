@@ -27,6 +27,22 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <xacro:arg name="tf_prefix" default="husky1_tf" />
 
+  <!-- Side lasers -->
+  <xacro:arg name="side_lasers_enabled" default="0"/>
+
+  <!-- Left laser -->
+  <xacro:arg name="left_laser_topic" default="left/scan"/>
+  <xacro:arg name="left_laser_prefix" default="left"/>
+  <xacro:arg name="left_laser_parent" default="top_plate_link"/>
+  <xacro:arg name="left_laser_xyz" default="0.0 0.2206 0.0"/>
+  <xacro:arg name="left_laser_rpy" default="0.0 0.0 1.570795"/>
+  <!-- Right laser -->
+  <xacro:arg name="right_laser_topic" default="right/scan"/>
+  <xacro:arg name="right_laser_prefix" default="right"/>
+  <xacro:arg name="right_laser_parent" default="top_plate_link"/>
+  <xacro:arg name="right_laser_xyz" default="0.0 -0.2206 0.0"/>
+  <xacro:arg name="right_laser_rpy" default="0.0 0.0 -1.570795"/>
+
 
   <!-- IMU Link -->
   <xacro:arg name="imu_xyz"     default="$(optenv HUSKY_IMU_XYZ 0.19 0 0.149)"/>
@@ -288,6 +304,18 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <xacro:hokuyo_ust10_mount topic="$(arg laser_ust10_rear_topic)" prefix="$(arg laser_ust10_rear_prefix)" parent_link="$(arg laser_ust10_rear_parent)" robot_namespace="$(arg robot_namespace)">
         <origin xyz="$(arg laser_ust10_rear_xyz)" rpy="$(arg laser_ust10_rear_rpy)" />
       </xacro:hokuyo_ust10_mount>
+  </xacro:if>
+
+  <!-- Hokuyo side laser scans -->
+  <xacro:if value="$(arg side_lasers_enabled)">
+    <!-- Left laser -->
+    <xacro:hokuyo_ust10_mount topic="$(arg left_laser_topic)" prefix="$(arg left_laser_prefix)" parent_link="$(arg left_laser_parent)" robot_namespace="$(arg robot_namespace)" min_angle="-0.7853975" max_angle="1.570795">
+      <origin xyz="$(arg left_laser_xyz)" rpy="$(arg left_laser_rpy)" />
+    </xacro:hokuyo_ust10_mount>
+    <!-- Right laser -->
+    <xacro:hokuyo_ust10_mount topic="$(arg right_laser_topic)" prefix="$(arg right_laser_prefix)" parent_link="$(arg right_laser_parent)" robot_namespace="$(arg robot_namespace)" min_angle="-1.570795" max_angle="0.7853975">
+      <origin xyz="$(arg right_laser_xyz)" rpy="$(arg right_laser_rpy)" />
+    </xacro:hokuyo_ust10_mount>
   </xacro:if>
 
   <!-- Intel Realsense Primary and Secondary -->
