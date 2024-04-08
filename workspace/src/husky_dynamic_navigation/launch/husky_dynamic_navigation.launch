@@ -8,7 +8,7 @@
   <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
 
 
-  <include file="$(find husky_gazebo)/launch/playpen.launch"/>
+  <include file="$(find husky_dynamic_navigation)/launch/playpen.launch"/>
   
   <!-- FER-LAMOR -->
   <include file="$(find husky_dynamic_navigation)/launch/spawn_robots.launch">

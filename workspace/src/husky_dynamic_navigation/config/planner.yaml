@@ -28,13 +28,14 @@ MpcLocalPlannerROS:
 
   ## Footprint model for collision avoidance
   footprint_model:
-    type: "polygon"
-    vertices: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
+    type: "circular"
+    #vertices: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]] # for polygon
+    radius: 0.6 # for circle
     is_footprint_dynamic: False
 
   ## Collision avoidance
   collision_avoidance:
-    min_obstacle_dist: 0.2 # Note, this parameter must be chosen w.r.t. the footprint_model
+    min_obstacle_dist: 0.2
     enable_dynamic_obstacles: True
     force_inclusion_dist: 0.5
     cutoff_dist: 2.5 

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 import rospy 
 from husky_dynamic_navigation.control_husky import ControlHusky

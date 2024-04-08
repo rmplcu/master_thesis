@@ -167,6 +167,8 @@ catkin_install_python(PROGRAMS
   src/static_navigation.py
   src/static_navigation_multiple_huskies.py
   src/mpc_navigation_opposite_directions.py
+  src/mpc_navigation_diagonal.py
+  src/mpc_navigation_moving_obstacle.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

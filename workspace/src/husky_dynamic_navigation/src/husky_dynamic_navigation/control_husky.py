@@ -1,25 +1,25 @@
-#! /usr/bin/ python
+#!/usr/bin/env python
 
-from turtle import pos
+import string
 import rospy
-import actionlib
+from actionlib import SimpleActionClient
 from actionlib_msgs.msg import GoalStatus
 from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
-from geometry_msgs.msg import PoseWithCovarianceStamped, Pose
+from geometry_msgs.msg import PoseWithCovarianceStamped,PoseWithCovariance
 
 class ControlHusky():
-    def __init__(self, name):
-        self.TIMEOUT_DURATION = 10
-        self.__name = name
-        self.__current_pose = None
-        self.__client = actionlib.SimpleActionClient(f'{self.__name}/move_base', MoveBaseAction)
+    def __init__(self, name:string) -> None:
+        self.TIMEOUT_DURATION: int = 10
+        self.__name: string = name
+        self.__current_pose: PoseWithCovariance = None
+        self.__client:SimpleActionClient = SimpleActionClient(f'{self.__name}/move_base', MoveBaseAction)
 
-        def pose_callback(pose):
+        def pose_callback(pose) -> None:
             self.__current_pose = pose.pose
 
         rospy.Subscriber(f'{self.__name}/amcl_pose', PoseWithCovarianceStamped, pose_callback, queue_size=10)
 
-    def send_goal(self, x=None, y=None, w=None, pose=None):
+    def send_goal(self, x:float=None, y:float=None, w:float=None, pose:PoseWithCovariance=None) -> bool:
         if pose is None and (x is None or y is None): raise ValueError("None parameter")
 
         if (not self.__client.wait_for_server(rospy.Duration(self.TIMEOUT_DURATION))):
@@ -48,7 +48,7 @@ class ControlHusky():
         return True
 
 
-    def get_current_pose(self):
+    def get_current_pose(self) -> PoseWithCovarianceStamped:
         if self.__current_pose is None:
             rospy.logwarn(f"Current position not set for {self.__name}")
 
