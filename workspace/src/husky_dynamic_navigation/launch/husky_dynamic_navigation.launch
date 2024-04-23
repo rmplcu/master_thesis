@@ -3,8 +3,8 @@
   <!-- Args -->
   <arg name="husky1_x" default="0.0"/>
   <arg name="husky1_y" default="0.0"/>
-  <arg name="h1_base_local_planner_package" default="mpc_local_planner"/>
-  <arg name="h1_base_local_planner" default="MpcLocalPlannerROS"/>
+  <arg name="h1_base_local_planner_package" default="simple_mpc_local_planner"/>
+  <arg name="h1_base_local_planner" default="SimpleMPCLocalPlanner"/>
 
   <arg name="husky2_x" default="-7.0"/>
   <arg name="husky2_y" default="0.0"/>

@@ -1,5 +1,5 @@
 <library path="lib/libsimple_mpc_local_planner">
-  <class name ="simple_mpc_local_planner/SimpleMPCLocalPlanner" type ="simple_mpc_local_planner::SimpleMPCLocalPlanner" base_class_type= "nav_core::BaseLocalPlanner">
+  <class name="simple_mpc_local_planner/SimpleMPCLocalPlanner" type ="simple_mpc_local_planner::SimpleMPCLocalPlanner" base_class_type= "nav_core::BaseLocalPlanner">
     <description>
       Simplest Plugin for BaseLocalPlanner
     </description>
