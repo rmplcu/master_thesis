@@ -3,13 +3,18 @@
   <!-- Args -->
   <arg name="husky1_x" default="0.0"/>
   <arg name="husky1_y" default="0.0"/>
+  <arg name="h1_base_local_planner_package" default="mpc_local_planner"/>
+  <arg name="h1_base_local_planner" default="MpcLocalPlannerROS"/>
+
   <arg name="husky2_x" default="-7.0"/>
   <arg name="husky2_y" default="0.0"/>
-  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
+  <arg name="h2_base_local_planner_package" default="mpc_local_planner"/>
+  <arg name="h2_base_local_planner" default="MpcLocalPlannerROS"/>
 
+  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
+  <!---->
 
   <include file="$(find husky_dynamic_navigation)/launch/playpen.launch"/>
-  
   <!-- FER-LAMOR -->
   <include file="$(find husky_dynamic_navigation)/launch/spawn_robots.launch">
     <arg name="h1_x" value="$(arg husky1_x)"/>
@@ -20,8 +25,14 @@
   <include file="$(find husky_dynamic_navigation)/launch/multi_amcl.launch">
     <arg name="h1_x" value="$(arg husky1_x)"/>
     <arg name="h1_y" value="$(arg husky1_y)"/>
+    <arg name="h1_base_local_planner_package" value="$(arg h1_base_local_planner_package)"/>
+    <arg name="h1_base_local_planner" value="$(arg h1_base_local_planner)"/>
+
     <arg name="h2_x" value="$(arg husky2_x)"/>
     <arg name="h2_y" value="$(arg husky2_y)"/>
+    <arg name="h2_base_local_planner_package" value="$(arg h2_base_local_planner_package)"/>
+    <arg name="h2_base_local_planner" value="$(arg h2_base_local_planner)"/>
+
     <arg name="map_file" value="$(arg map_file)"/>
   </include>
 

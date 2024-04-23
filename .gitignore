@@ -9,4 +9,5 @@ credentials.txt
 /workspace/src/mpc_local_planner/
 /workspace/src/mpc_ros/
 /workspace/src/mpc_local_planner_msgs/
+.vscode/
 resources.txt

@@ -1,11 +1,16 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="h1_name" default="husky1"/>
   <arg name="h1_x" default="0.0"/>
   <arg name="h1_y" default="0.0"/>
-  <arg name="h1_name" default="husky1"/>
+  <arg name="h1_base_local_planner_package" default="mpc_local_planner"/>
+  <arg name="h1_base_local_planner" default="MpcLocalPlannerROS"/>
+
+  <arg name="h2_name" default="husky2"/>
   <arg name="h2_x" default="0.0"/>
   <arg name="h2_y" default="0.0"/>
-  <arg name="h2_name" default="husky2"/>
+  <arg name="h2_base_local_planner_package" default="mpc_local_planner"/>
+  <arg name="h2_base_local_planner" default="MpcLocalPlannerROS"/>
 
   <!-- Run the map server -->
   <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
@@ -34,13 +39,14 @@
     <include file="$(find husky_dynamic_navigation)/launch/move_base_husky.launch">
       <param name="tf_prefix" value="$(arg h1_name)_tf" />
       <arg name="tf_prefix" value="husky1_tf"/>
-      
       <arg name="scan_topic" value="/husky1/scan"/>
       <arg name="cmd_vel_topic" value="/$(arg h1_name)/cmd_vel"/> 
-      <arg name="odom_topic" value="/husky1/husky_velocity_controller/odom"/> -->
+      <arg name="odom_topic" value="/husky1/husky_velocity_controller/odom"/>
       <!--arg name="odom_topic" value="/husky1/odometry/filtered"/-->
 
-      <!-- Use default local planner: MPC -->
+      <!-- local planner-->
+      <arg name="base_local_planner_package" value="$(arg h1_base_local_planner_package)"/>
+      <arg name="base_local_planner" value="$(arg h1_base_local_planner)"/>
     </include>
   </group>
 
@@ -71,7 +77,9 @@
       <!--arg name="odom_topic" value="/husky2/odometry/filtered"/-->
       <arg name="scan_topic" value="/husky2/scan"/>
 
-      <!-- Use default local planner: MPC -->
+      <!-- local planner -->
+      <arg name="base_local_planner_package" value="$(arg h2_base_local_planner_package)"/>
+      <arg name="base_local_planner" value="$(arg h2_base_local_planner)"/>
     </include>
   </group>
 

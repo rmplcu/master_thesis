@@ -1,4 +1,4 @@
-ros (noetic)
+ros_noetic
 husky_gazebo
 husky_desktop
 husky_viz

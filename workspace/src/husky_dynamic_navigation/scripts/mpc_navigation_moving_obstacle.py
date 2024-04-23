@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-from turtle import pos
 import rospy
 from husky_dynamic_navigation.control_husky import ControlHusky
-import threading
 from geometry_msgs.msg import PoseWithCovariance
 
 TIMEOUT = 10 #seconds
