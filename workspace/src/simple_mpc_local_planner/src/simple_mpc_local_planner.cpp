@@ -18,7 +18,7 @@ PLUGINLIB_EXPORT_CLASS(simple_mpc_local_planner::SimpleMPCLocalPlanner, nav_core
 
 namespace simple_mpc_local_planner {
 
-  void SimpleMPCLocalPlanner::reconfigureCB(DWAPlannerConfig &config, uint32_t level) {
+  void SimpleMPCLocalPlanner::reconfigureCB(SimpleMPCLocalPlannerConfig &config, uint32_t level) {
       if (setup_ && config.restore_defaults) {
         config = default_config_;
         config.restore_defaults = false;
@@ -53,9 +53,7 @@ namespace simple_mpc_local_planner {
       dp_->reconfigure(config);
   }
 
-  SimpleMPCLocalPlanner::SimpleMPCLocalPlanner() : initialized_(false),
-      odom_helper_("odom"), setup_(false) {
-
+  SimpleMPCLocalPlanner::SimpleMPCLocalPlanner() : initialized_(false), odom_helper_("odom"), setup_(false) {
   }
 
   void SimpleMPCLocalPlanner::initialize(
@@ -83,7 +81,13 @@ namespace simple_mpc_local_planner {
       {
         odom_helper_.setOdomTopic( odom_topic_ );
       }
-      
+
+      // Initialize my parameters
+      private_nh.param("waiting_time", waiting_time_, 0.5);
+      private_nh.param("max_retries", max_retries_, 5);
+      private_nh.param("horizon", horizon_, 3.0);
+
+
       initialized_ = true;
 
       // Warn about deprecated parameters -- remove this block in N-turtle
@@ -94,8 +98,8 @@ namespace simple_mpc_local_planner {
       nav_core::warnRenamedParameter(private_nh, "acc_lim_trans", "acc_limit_trans");
       nav_core::warnRenamedParameter(private_nh, "theta_stopped_vel", "rot_stopped_vel");
 
-      dsrv_ = new dynamic_reconfigure::Server<DWAPlannerConfig>(private_nh);
-      dynamic_reconfigure::Server<DWAPlannerConfig>::CallbackType cb = [this](auto& config, auto level){ reconfigureCB(config, level); };
+      dsrv_ = new dynamic_reconfigure::Server<SimpleMPCLocalPlannerConfig>(private_nh);
+      dynamic_reconfigure::Server<SimpleMPCLocalPlannerConfig>::CallbackType cb = [this](auto& config, auto level){ reconfigureCB(config, level); };
       dsrv_->setCallback(cb);
     }
     else{
@@ -189,15 +193,13 @@ namespace simple_mpc_local_planner {
     //if we cannot move... tell someone
     std::vector<geometry_msgs::PoseStamped> local_plan;
     if(path.cost_ < 0) {
-      ROS_DEBUG_NAMED("simple_mpc_local_planner",
-          "The dwa local planner failed to find a valid plan, cost functions discarded all candidates. This can mean there is an obstacle too close to the robot.");
+      ROS_WARN_NAMED("simple_mpc_local_planner", "The dwa local planner failed to find a valid plan, cost functions discarded all candidates. This can mean there is an obstacle too close to the robot.");
       local_plan.clear();
       publishLocalPlan(local_plan);
       return false;
     }
 
-    ROS_DEBUG_NAMED("simple_mpc_local_planner", "A valid velocity command of (%.2f, %.2f, %.2f) was found for this cycle.", 
-                    cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
+    ROS_WARN_NAMED("simple_mpc_local_planner", "A valid velocity command of (%.2f, %.2f, %.2f) was found for this cycle.", cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
 
     // Fill out the local plan
     for(unsigned int i = 0; i < path.getPointsSize(); ++i) {
@@ -222,10 +224,8 @@ namespace simple_mpc_local_planner {
     return true;
   }
 
-
-
-
   bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
+
     // dispatches to either dwa sampling control or stop and rotate control, depending on whether we have been close enough to goal
     if ( ! costmap_ros_->getRobotPose(current_pose_)) {
       ROS_ERROR("Could not get robot pose");
@@ -267,7 +267,7 @@ namespace simple_mpc_local_planner {
       if (isOk) {
         publishGlobalPlan(transformed_plan);
       } else {
-        ROS_WARN_NAMED("simple_mpc_local_planner", "DWA planner failed to produce path.");
+        ROS_WARN_NAMED("simple_mpc_local_planner", "DWA planner failed to produce path: waiting");
         std::vector<geometry_msgs::PoseStamped> empty_plan;
         publishGlobalPlan(empty_plan);
       }

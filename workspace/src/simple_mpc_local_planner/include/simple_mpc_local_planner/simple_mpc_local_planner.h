@@ -7,7 +7,7 @@
 #include <tf2_ros/buffer.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <simple_mpc_local_planner/DWAPlannerConfig.h>
+#include <simple_mpc_local_planner/SimpleMPCLocalPlannerConfig.h>
 
 #include <angles/angles.h>
 
@@ -18,6 +18,7 @@
 #include <base_local_planner/latched_stop_rotate_controller.h>
 
 #include <base_local_planner/odometry_helper_ros.h>
+#include <base_local_planner/trajectory_planner_ros.h>
 
 #include <simple_mpc_local_planner/dwa_planner.h>
 
@@ -86,7 +87,7 @@ namespace simple_mpc_local_planner {
       /**
        * @brief Callback to update the local planner's parameters based on dynamic reconfigure
        */
-      void reconfigureCB(DWAPlannerConfig &config, uint32_t level);
+      void reconfigureCB(SimpleMPCLocalPlannerConfig &config, uint32_t level);
 
       void publishLocalPlan(std::vector<geometry_msgs::PoseStamped>& path);
 
@@ -103,17 +104,23 @@ namespace simple_mpc_local_planner {
 
       costmap_2d::Costmap2DROS* costmap_ros_;
 
-      dynamic_reconfigure::Server<DWAPlannerConfig> *dsrv_;
-      simple_mpc_local_planner::DWAPlannerConfig default_config_;
+      dynamic_reconfigure::Server<SimpleMPCLocalPlannerConfig> *dsrv_;
+      simple_mpc_local_planner::SimpleMPCLocalPlannerConfig default_config_;
       bool setup_;
       geometry_msgs::PoseStamped current_pose_;
 
       base_local_planner::LatchedStopRotateController latchedStopRotateController_;
 
-
+      // -- My params --
+      double waiting_time_; //waiting time when no valid trajectory is found
+      int max_retries_; //max of consecutives invalid trajectories before failure
+      int current_retries = 0;
+      double horizon_;
+      // --           --
+      
       bool initialized_;
 
-
+      
       base_local_planner::OdometryHelperRos odom_helper_;
       std::string odom_topic_;
   };

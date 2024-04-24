@@ -49,7 +49,7 @@
 #include <sensor_msgs/point_cloud2_iterator.h>
 
 namespace simple_mpc_local_planner {
-  void DWAPlanner::reconfigure(DWAPlannerConfig &config)
+  void DWAPlanner::reconfigure(SimpleMPCLocalPlannerConfig &config)
   {
 
     boost::mutex::scoped_lock l(configuration_mutex_);
