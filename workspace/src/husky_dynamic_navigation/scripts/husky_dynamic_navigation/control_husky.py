@@ -41,10 +41,10 @@ class ControlHusky():
         self.__client.wait_for_result()
 
         if self.__client.get_state() != GoalStatus.SUCCEEDED:
-            rospy.logerr('Destination not reachable')
+            rospy.logerr(f'[{self.__name}] Destination not reachable')
             return False
 
-        rospy.loginfo('Destination reached!')
+        rospy.loginfo(f'[{self.__name}] Destination reached!')
         return True
 
 
