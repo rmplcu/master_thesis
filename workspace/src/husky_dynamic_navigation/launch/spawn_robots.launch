@@ -4,8 +4,10 @@
 
   <arg name="h1_x" default="0.0"/>
   <arg name="h1_y" default="0.0"/>
+  <arg name="h1_yaw" default="0.0"/>
   <arg name="h2_x" default="0.0"/>
   <arg name="h2_y" default="0.0"/>
+  <arg name="h2_yaw" default="0.0"/>
 
   <group ns="/husky1"> <!-- ne smijes ovo maknut jer ti nece bit frameovi od drugog huskyja nego ce bit kolizija -->
   <!-- <group> -->
@@ -20,7 +22,7 @@
       <arg name="x" value="$(arg h1_x)"/> 
       <arg name="y" value="$(arg h1_y)"/>
       <arg name="z" value="0.0"/>
-      <arg name="yaw" value="3.1415"/>
+      <arg name="yaw" value="$(arg h1_yaw)"/>
       <arg name="model" value="husky1"/>
     </include>
   </group>
@@ -37,10 +39,8 @@
       <arg name="husky_num" value="husky2" />
       <arg name="x" value="$(arg h2_x)"/>
       <arg name="y" value="$(arg h2_y)"/>
-      <!-- <arg name="x" value="0"/>
-      <arg name="y" value="0"/> -->
       <arg name="z" value="0.0"/>
-      <arg name="yaw" value="0.0"/>
+      <arg name="yaw" value="$(arg h2_yaw)"/>
       <arg name="model" value="husky2"/>
     </include>
   </group>

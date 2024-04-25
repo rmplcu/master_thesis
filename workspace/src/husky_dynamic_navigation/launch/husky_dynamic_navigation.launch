@@ -1,35 +1,60 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Args -->
-  <arg name="husky1_x" default="0.0"/>
-  <arg name="husky1_y" default="0.0"/>
-  <arg name="h1_base_local_planner_package" default="simple_mpc_local_planner"/>
-  <arg name="h1_base_local_planner" default="SimpleMPCLocalPlanner"/>
+  <arg name="world_name" default="playpen"/>
 
-  <arg name="husky2_x" default="-7.0"/>
-  <arg name="husky2_y" default="0.0"/>
-  <arg name="h2_base_local_planner_package" default="mpc_local_planner"/>
-  <arg name="h2_base_local_planner" default="MpcLocalPlannerROS"/>
+  <!-- Playpen x,y -->
+  <arg name="playpen_husky1_x" value="0.0"/>
+  <arg name="playpen_husky1_y" value="0.0"/>
+  <arg name="playpen_husky1_yaw" value="3.1415"/>
 
-  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/playpen_map.yaml"/>
+  <arg name="playpen_husky2_x" value="-7.0"/>
+  <arg name="playpen_husky2_y" value="0.0"/>
+  <arg name="playpen_husky2_yaw" value="0.0"/>
   <!---->
 
-  <include file="$(find husky_dynamic_navigation)/launch/playpen.launch"/>
+  <!-- Narrow Corridor x,y -->
+  <arg name="narrow_corridor_husky1_x" default="-8.0"/>
+  <arg name="narrow_corridor_husky1_y" default="-8.0"/>
+  <arg name="narrow_corridor_husky1_yaw" default="0.0"/>
+
+
+  <arg name="narrow_corridor_husky2_x" default="8.0"/>
+  <arg name="narrow_corridor_husky2_y" default="9.0"/>
+  <arg name="narrow_corridor_husky2_yaw" default="3.1415"/>
+
+  <!---->
+
+  <arg name="h1_base_local_planner_package" default="simple_mpc_local_planner"/>
+  <arg name="h1_base_local_planner" default="SimpleMPCLocalPlanner"/>
+  <arg name="h2_base_local_planner_package" default="simple_mpc_local_planner"/> <!--mpc_local_planner-->
+  <arg name="h2_base_local_planner" default="SimpleMPCLocalPlanner"/> <!--MpcLocalPlannerROS--> 
+
+  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/$(arg world_name)_map.yaml"/>
+  <!---->
+
+  <include file="$(find husky_dynamic_navigation)/launch/world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+  </include>
   <!-- FER-LAMOR -->
   <include file="$(find husky_dynamic_navigation)/launch/spawn_robots.launch">
-    <arg name="h1_x" value="$(arg husky1_x)"/>
-    <arg name="h1_y" value="$(arg husky1_y)"/>
-    <arg name="h2_x" value="$(arg husky2_x)"/>
-    <arg name="h2_y" value="$(arg husky2_y)"/>
+    <arg name="h1_x" value="$(eval arg(arg('world_name')+ '_husky1_x'))"/>
+    <arg name="h1_y" value="$(eval arg(arg('world_name')+ '_husky1_y'))"/>
+    <arg name="h1_yaw" value="$(eval arg(arg('world_name')+ '_husky1_yaw'))"/>
+    <arg name="h2_x" value="$(eval arg(arg('world_name')+ '_husky2_x'))"/>
+    <arg name="h2_y" value="$(eval arg(arg('world_name')+ '_husky2_y'))"/>
+    <arg name="h2_yaw" value="$(eval arg(arg('world_name')+ '_husky2_yaw'))"/>
   </include>
   <include file="$(find husky_dynamic_navigation)/launch/multi_amcl.launch">
-    <arg name="h1_x" value="$(arg husky1_x)"/>
-    <arg name="h1_y" value="$(arg husky1_y)"/>
+    <arg name="h1_x" value="$(eval arg(arg('world_name')+ '_husky1_x'))"/>
+    <arg name="h1_y" value="$(eval arg(arg('world_name')+ '_husky1_y'))"/>
+    <arg name="h1_yaw" value="$(eval arg(arg('world_name')+ '_husky1_yaw'))"/>
     <arg name="h1_base_local_planner_package" value="$(arg h1_base_local_planner_package)"/>
     <arg name="h1_base_local_planner" value="$(arg h1_base_local_planner)"/>
 
-    <arg name="h2_x" value="$(arg husky2_x)"/>
-    <arg name="h2_y" value="$(arg husky2_y)"/>
+    <arg name="h2_x" value="$(eval arg(arg('world_name')+ '_husky2_x'))"/>
+    <arg name="h2_y" value="$(eval arg(arg('world_name')+ '_husky2_y'))"/>
+    <arg name="h2_yaw" value="$(eval arg(arg('world_name')+ '_husky2_yaw'))"/>
     <arg name="h2_base_local_planner_package" value="$(arg h2_base_local_planner_package)"/>
     <arg name="h2_base_local_planner" value="$(arg h2_base_local_planner)"/>
 

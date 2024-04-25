@@ -3,12 +3,14 @@
   <arg name="h1_name" default="husky1"/>
   <arg name="h1_x" default="0.0"/>
   <arg name="h1_y" default="0.0"/>
+  <arg name="h1_yaw" default="0.0"/>
   <arg name="h1_base_local_planner_package" default="mpc_local_planner"/>
   <arg name="h1_base_local_planner" default="MpcLocalPlannerROS"/>
 
   <arg name="h2_name" default="husky2"/>
   <arg name="h2_x" default="0.0"/>
   <arg name="h2_y" default="0.0"/>
+  <arg name="h2_yaw" default="0.0"/>
   <arg name="h2_base_local_planner_package" default="mpc_local_planner"/>
   <arg name="h2_base_local_planner" default="MpcLocalPlannerROS"/>
 
@@ -29,7 +31,7 @@
 
       <arg name="initial_pose_x" value="$(arg h1_x)"/>
       <arg name="initial_pose_y" value="$(arg h1_y)"/>
-      <arg name="initial_pose_a" value="3.1415"/> yaw
+      <arg name="initial_pose_a" value="$(arg h1_yaw)"/> 
 
     </include>
   </group>
@@ -62,7 +64,7 @@
       <arg name="node_name_prefix" value="$(arg node_name_prefix)"/>
       <arg name="initial_pose_x" value="$(arg h2_x)"/>
       <arg name="initial_pose_y" value="$(arg h2_y)"/>
-      <!-- <arg name="initial_pose_a" value="-1.57079632679"/> yaw -->
+      <arg name="initial_pose_a" value="$(arg h2_yaw)"/>
     </include>
   </group>
 

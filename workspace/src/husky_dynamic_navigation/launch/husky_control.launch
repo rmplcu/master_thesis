@@ -17,10 +17,13 @@
   <arg name="side_lasers" default="1"/>
   <arg name="realsense_enabled" default="1"/>
 
-  <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/config/husky.urdf.xacro'
+  <arg name="laser_range_max" default="13"/>
+  <arg name="laser_range_min" default="0.1"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/urdf/husky.urdf.xacro'
     robot_namespace:=$(arg robot_namespace) laser_ust10_rear_enabled:=1 laser_ust10_front_enabled:=1 tf_prefix:=$(arg husky_num)_tf" if="$(arg laser_front_back)"/>
 
-  <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/config/husky.urdf.xacro'
+  <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/urdf/husky.urdf.xacro'
   robot_namespace:=$(arg robot_namespace) side_lasers_enabled:=$(arg side_lasers) realsense_enabled:=$(arg realsense_enabled) tf_prefix:=$(arg husky_num)_tf" if="$(arg realsense_enabled)"/>
 
   <!-- Load controller configuration -->
@@ -29,6 +32,8 @@
   <!-- PointCloud to laserscan -->
   <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan" if="$(arg realsense_enabled)">
     <param name="target_frame" value="$(arg husky_num)_tf/base_link"/>
+    <param name="range_max" value="$(arg laser_range_max)"/>
+    <param name="range_min" value="$(arg laser_range_min)"/>
 
     <remap from="scan" to="$(arg robot_namespace)/3d_scan" if="$(arg side_lasers)"/>
     <remap from="scan" to="$(arg robot_namespace)/scan" unless="$(arg side_lasers)"/>
@@ -45,8 +50,8 @@
 
     <param name="angle_min" value="-3.14"/>
     <param name="angle_max" value="3.14"/>
-    <param name="range_min" value="0.1"/>
-    <param name="range_max" value="12.0"/>
+    <param name="range_min" value="$(arg laser_range_min)"/>
+    <param name="range_max" value="$(arg laser_range_max)"/>
   </node>
 
   <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" if="$(eval arg('realsense_enabled') and arg('side_lasers'))">
@@ -58,8 +63,8 @@
 
     <param name="angle_min" value="-3.14"/>
     <param name="angle_max" value="3.14"/>
-    <param name="range_min" value="0.1"/>
-    <param name="range_max" value="12.0"/>
+    <param name="range_min" value="$(arg laser_range_min)"/>
+    <param name="range_max" value="$(arg laser_range_max)"/>
   </node>
 
   <!-- Spawn controllers -->
