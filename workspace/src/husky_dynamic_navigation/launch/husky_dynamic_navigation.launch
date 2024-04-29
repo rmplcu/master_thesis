@@ -16,7 +16,7 @@
   <!-- Narrow Corridor x,y -->
   <arg name="narrow_corridor_husky1_x" default="-8.0"/>
   <arg name="narrow_corridor_husky1_y" default="-8.0"/>
-  <arg name="narrow_corridor_husky1_yaw" default="0.0"/>
+  <arg name="narrow_corridor_husky1_yaw" default="1.5707"/>
 
 
   <arg name="narrow_corridor_husky2_x" default="8.0"/>
@@ -27,8 +27,8 @@
 
   <arg name="h1_base_local_planner_package" default="simple_mpc_local_planner"/>
   <arg name="h1_base_local_planner" default="SimpleMPCLocalPlanner"/>
-  <arg name="h2_base_local_planner_package" default="simple_mpc_local_planner"/> <!--mpc_local_planner-->
-  <arg name="h2_base_local_planner" default="SimpleMPCLocalPlanner"/> <!--MpcLocalPlannerROS--> 
+  <arg name="h2_base_local_planner_package" default="simple_mpc_local_planner"/> <!--mpc_local_planner teb_local_planner base_local_planner-->
+  <arg name="h2_base_local_planner" default="SimpleMPCLocalPlanner"/> <!--MpcLocalPlannerROS TebLocalPlannerROS--> 
 
   <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/$(arg world_name)_map.yaml"/>
   <!---->

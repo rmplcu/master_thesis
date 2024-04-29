@@ -1,4 +1,3 @@
-
 #include <simple_mpc_local_planner/simple_mpc_local_planner.h>
 #include <Eigen/Core>
 #include <cmath>
@@ -10,7 +9,7 @@
 #include <base_local_planner/goal_functions.h>
 #include <nav_msgs/Path.h>
 #include <tf2/utils.h>
-
+#include <std_srvs/Empty.h>
 #include <nav_core/parameter_magic.h>
 
 //register this planner as a BaseLocalPlanner plugin
@@ -83,10 +82,7 @@ namespace simple_mpc_local_planner {
       }
 
       // Initialize my parameters
-      private_nh.param("waiting_time", waiting_time_, 0.5);
-      private_nh.param("max_retries", max_retries_, 5);
-      private_nh.param("horizon", horizon_, 3.0);
-
+      //
 
       initialized_ = true;
 
@@ -264,13 +260,19 @@ namespace simple_mpc_local_planner {
           [this](auto pos, auto vel, auto vel_samples){ return dp_->checkTrajectory(pos, vel, vel_samples); });
     } else {
       bool isOk = dwaComputeVelocityCommands(current_pose_, cmd_vel);
-      if (isOk) {
-        publishGlobalPlan(transformed_plan);
-      } else {
+
+
+      if (!isOk) {
+        //Try to clear costmaps and recompute
+        costmap_ros_->resetLayers();
+
         ROS_WARN_NAMED("simple_mpc_local_planner", "DWA planner failed to produce path.");
         std::vector<geometry_msgs::PoseStamped> empty_plan;
-        publishGlobalPlan(empty_plan);
+        transformed_plan = empty_plan;
       }
+      
+      publishGlobalPlan(transformed_plan);
+      
       return isOk;
     }
   }

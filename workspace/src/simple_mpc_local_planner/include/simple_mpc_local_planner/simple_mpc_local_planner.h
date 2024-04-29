@@ -112,12 +112,6 @@ namespace simple_mpc_local_planner {
       base_local_planner::LatchedStopRotateController latchedStopRotateController_;
 
       // -- My params --
-      double waiting_time_; //waiting time when no valid trajectory is found
-      int max_retries_; //max of consecutives invalid trajectories before failure
-      int current_retries = 0;
-      double horizon_;
-
-      costmap_2d::Costmap2DROS* global_costmap_ros_;
       // --           --
       
       bool initialized_;
