@@ -26,14 +26,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 <launch>
 
   <arg name="no_static_map" default="false"/>
-
   <arg name="base_global_planner" default="navfn/NavfnROS"/>
   <arg name="base_local_planner" default="MpcLocalPlannerROS"/>
   <arg name="base_local_planner_package" default="mpc_local_planner"/>
  
   <arg name="cmd_vel_topic" default="cmd_vel" />
   <arg name="odom_topic" default="odom" />
-  <arg name="tf_prefix" default="husky1_tf"/>
+  <arg name="robot_name" default="husky1"/>
+  <arg name="tf_prefix" default="$(arg robot_name)_tf"/>
   <arg name="scan_topic" default="/husky1/scan"/>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
@@ -48,6 +48,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 
     <!-- Config file for both local and global planners -->
     <rosparam file="$(find husky_dynamic_navigation)/config/planner.yaml" command="load"/>
+    <rosparam file="$(find husky_dynamic_navigation)/config/$(arg base_local_planner)_$(arg robot_name).yaml" command="load"/>
 
     <!-- observation sources located in costmap_common.yaml -->
     <rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" />
@@ -71,7 +72,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
     <param name="global_costmap/obstacles_laser/laser/topic" value="$(arg scan_topic)"/>
 
     <param name="$(arg base_local_planner)/global_frame_id" value="$(arg tf_prefix)/odom"/>
-    <param name="$(arg base_local_planner)/odom_topic" value="$(arg tf_prefix)/husky_velocity_controller/odom"/> <!-- not odometry/filtered -->
+    <param name="$(arg base_local_planner)/odom_topic" value="/$(arg robot_name)/husky_velocity_controller/odom"/> <!-- not odometry/filtered -->
   </node>
 
 </launch>

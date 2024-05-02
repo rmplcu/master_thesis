@@ -6,9 +6,12 @@
 
 #include <pluginlib/class_list_macros.hpp>
 
+#include <geometry_msgs/Point.h>
 #include <base_local_planner/goal_functions.h>
 #include <nav_msgs/Path.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
 #include <std_srvs/Empty.h>
 #include <nav_core/parameter_magic.h>
 
@@ -55,6 +58,72 @@ namespace simple_mpc_local_planner {
   SimpleMPCLocalPlanner::SimpleMPCLocalPlanner() : initialized_(false), odom_helper_("odom"), setup_(false) {
   }
 
+  bool SimpleMPCLocalPlanner::initMyParams(ros::NodeHandle nh) {
+    //tf_prefix
+    tf_prefix_ = nh.param("tf_prefix", std::string("/"));
+
+    //priority
+    priority_ = nh.param("priority_level", 0);
+
+    //corridor vertices
+    XmlRpc::XmlRpcValue vertices_vec;
+    if (!nh.getParam("corridor_vertices", vertices_vec) || vertices_vec.getType() != XmlRpc::XmlRpcValue::TypeArray) {
+      ROS_ERROR("Unable to fetch corridor vertices.");
+      return false;
+    }
+
+    for (int i=0; i<vertices_vec.size(); i++) {
+      double x, y;
+      geometry_msgs::Point vertex;
+      try {
+        vertex.x = vertices_vec[i][0];
+        vertex.y = vertices_vec[i][1];
+      } catch (...) {
+        ROS_ERROR("Unable to fetch vertex.");
+        return false;
+      }
+      corridor_vertices_.push_back(vertex);
+    }
+
+    //global plan topics
+    int current_robot_idx = 1;
+    XmlRpc::XmlRpcValue robot_name;
+    XmlRpc::XmlRpcValue global_plan_topic;
+    XmlRpc::XmlRpcValue odom_topic;
+    while (nh.getParam(std::string("robot") + std::to_string(current_robot_idx) + std::string("/name"), robot_name)) {
+      if (!nh.getParam(std::string("robot") + std::to_string(current_robot_idx) + std::string("/global_plan_topic"), global_plan_topic) && global_plan_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get global plan topic.");
+        return false;
+      }
+
+      if (!nh.getParam(std::string("robot") + std::to_string(current_robot_idx) + std::string("/odom_topic"), odom_topic) && odom_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get odom topic.");
+        return false;
+      }
+
+      odoms_.resize(odoms_.size()+1);
+      global_plans_.resize(global_plans_.size()+1);
+
+      //Set odom callback and subscriber
+      const std::string s_odom = static_cast<std::string>(odom_topic);
+      boost::function<void (const nav_msgs::Odometry&)> odom_cb = [this, current_robot_idx](const nav_msgs::Odometry& odom){
+        odoms_[current_robot_idx-1] = odom;
+      };
+      subscribers_.push_back(nh.subscribe<nav_msgs::Odometry>(s_odom, 1, odom_cb));
+
+      //Set global plan callback and subscriber
+      const std::string s_plan = static_cast<std::string>(global_plan_topic);
+      boost::function<void (const nav_msgs::Path&)> plan_cb = [this, current_robot_idx](const nav_msgs::Path& plan) {
+        global_plans_[current_robot_idx-1] = plan;
+      };
+      subscribers_.push_back(nh.subscribe<nav_msgs::Path>(s_plan, 1, plan_cb));
+
+      current_robot_idx++;
+    }
+
+    return true;
+  }
+
   void SimpleMPCLocalPlanner::initialize(
       std::string name,
       tf2_ros::Buffer* tf,
@@ -82,8 +151,11 @@ namespace simple_mpc_local_planner {
       }
 
       // Initialize my parameters
-      //
-
+      
+      successful_initialization_ = initMyParams(private_nh);
+      if (!successful_initialization_) ROS_ERROR("Initialization failed, local planner will run as DWA Local Planner");
+      else ROS_INFO("SimpleMPCLocalPlanner initialized successfully!");
+      
       initialized_ = true;
 
       // Warn about deprecated parameters -- remove this block in N-turtle
@@ -102,7 +174,40 @@ namespace simple_mpc_local_planner {
       ROS_WARN("This planner has already been initialized, doing nothing.");
     }
   }
+
+  //Raytrace algo from the internet to check if point is inside the corridor
+  bool SimpleMPCLocalPlanner::isPointInCorridor(geometry_msgs::Point point) {
+    bool inside = false;
+    geometry_msgs::Point p1 = corridor_vertices_[0], p2;
+
+    for (int i=1; i<=corridor_vertices_.size(); i++) {
+     
+      p2 = corridor_vertices_[i%corridor_vertices_.size()];
+
+      //Point.y inside edge.y and point.x to the left of edge.x 
+      if (point.y > std::min(p1.y, p2.y) && point.y <= std::max(p1.y, p2.y) && point.x <= std::max(p1.x, p2.x)) {
+        double x_intersection = (point.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x;
+        if (p1.x == p2.x || point.x <= x_intersection) inside = !inside;
+      }
+      
+      p1 = p2;
+    }
+
+    return inside;
+  }
   
+  bool SimpleMPCLocalPlanner::isCorridorInRange() {
+    geometry_msgs::TransformStamped odom_to_map;
+    geometry_msgs::Pose target_pose;
+
+    odom_to_map = (*tf_).lookupTransform("map", tf_prefix_ + "/odom", ros::Time(0), ros::Duration(3.0));
+    for (int i=my_local_plan_.size()-1; i>=0; i--) {    
+      tf2::doTransform(my_local_plan_[i].pose, target_pose, odom_to_map);
+      if (isPointInCorridor(target_pose.position)) return true;
+    }
+    return false;
+  }
+
   bool SimpleMPCLocalPlanner::setPlan(const std::vector<geometry_msgs::PoseStamped>& orig_global_plan) {
     if (! isInitialized()) {
       ROS_ERROR("This planner has not been initialized, please call initialize() before using this planner");
@@ -191,6 +296,7 @@ namespace simple_mpc_local_planner {
     if(path.cost_ < 0) {
       ROS_DEBUG_NAMED("simple_mpc_local_planner", "The dwa local planner failed to find a valid plan, cost functions discarded all candidates. This can mean there is an obstacle too close to the robot.");
       local_plan.clear();
+      my_local_plan_ = local_plan;
       publishLocalPlan(local_plan);
       return false;
     }
@@ -215,12 +321,21 @@ namespace simple_mpc_local_planner {
     }
 
     //publish information to the visualizer
-
+    my_local_plan_ = local_plan;
     publishLocalPlan(local_plan);
     return true;
   }
 
   bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
+    
+    if (isCorridorInRange() && priority_ > 0) {
+      ROS_WARN_ONCE("Corridor in range: stop and wait.");
+
+      std::vector<geometry_msgs::PoseStamped> empty_plan;
+      publishLocalPlan(empty_plan);
+
+      return true;
+    }
 
     // dispatches to either dwa sampling control or stop and rotate control, depending on whether we have been close enough to goal
     if ( ! costmap_ros_->getRobotPose(current_pose_)) {
@@ -248,6 +363,7 @@ namespace simple_mpc_local_planner {
       std::vector<geometry_msgs::PoseStamped> local_plan;
       std::vector<geometry_msgs::PoseStamped> transformed_plan;
       publishGlobalPlan(transformed_plan);
+      my_local_plan_ = local_plan;
       publishLocalPlan(local_plan);
       base_local_planner::LocalPlannerLimits limits = planner_util_.getCurrentLimits();
       return latchedStopRotateController_.computeVelocityCommandsStopRotate(

@@ -56,7 +56,7 @@ install(TARGETS simple_mpc_local_planner
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 
-install(FILES blp_plugin.xml
+install(FILES simple_mpc_local_planner_plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

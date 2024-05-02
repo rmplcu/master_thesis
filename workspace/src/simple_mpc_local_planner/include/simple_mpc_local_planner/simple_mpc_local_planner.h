@@ -5,6 +5,7 @@
 #include <boost/thread.hpp>
 
 #include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <simple_mpc_local_planner/SimpleMPCLocalPlannerConfig.h>
@@ -93,6 +94,17 @@ namespace simple_mpc_local_planner {
 
       void publishGlobalPlan(std::vector<geometry_msgs::PoseStamped>& path);
 
+      //My methods
+      bool initMyParams(ros::NodeHandle nh);
+
+      /**
+       * @brief check if point is inside a corridor
+       */
+      bool isPointInCorridor(geometry_msgs::Point point);
+
+      bool isCorridorInRange();
+      //
+
       tf2_ros::Buffer* tf_; ///< @brief Used for transforming point clouds
 
       // for visualisation, publishers of global and local plan
@@ -112,6 +124,14 @@ namespace simple_mpc_local_planner {
       base_local_planner::LatchedStopRotateController latchedStopRotateController_;
 
       // -- My params --
+      int priority_; //Low value equals higher priority
+      bool successful_initialization_ = false;
+      std::string tf_prefix_;
+      std::vector<geometry_msgs::Point> corridor_vertices_;
+      std::vector<nav_msgs::Path> global_plans_;
+      std::vector<nav_msgs::Odometry> odoms_;
+      std::vector<ros::Subscriber> subscribers_;
+      std::vector<geometry_msgs::PoseStamped> my_local_plan_;
       // --           --
       
       bool initialized_;

@@ -27,7 +27,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: MergedScans
   - Class: rviz/Displays
     Help Height: 70
     Name: Displays
@@ -222,9 +222,6 @@ Visualization Manager:
                           Value: true
                         Scans:
                           "": true
-                          LeftLaserScan: true
-                          MergedScan: true
-                          RightLaserScan: true
                           Value: true
                         Value: true
                       TF: true
@@ -618,7 +615,7 @@ Visualization Manager:
               Radius: 0.029999999329447746
               Shaft Diameter: 0.10000000149011612
               Shaft Length: 0.10000000149011612
-              Topic: /husky1/move_base/MpcLocalPlannerROS/local_plan
+              Topic: /husky1/move_base/SimpleMPCLocalPlanner/local_plan
               Unreliable: false
               Value: true
           Enabled: true
@@ -794,9 +791,6 @@ Visualization Manager:
                           Value: true
                         Scans:
                           "": true
-                          LeftLaserScan: true
-                          MergedScans: true
-                          RightLaserScan: true
                           Value: true
                         Value: true
                       TF: true
@@ -1158,7 +1152,7 @@ Visualization Manager:
               Radius: 0.029999999329447746
               Shaft Diameter: 0.10000000149011612
               Shaft Length: 0.10000000149011612
-              Topic: /husky2/move_base/MpcLocalPlannerROS/local_plan
+              Topic: /husky2/move_base/SimpleMPCLocalPlanner/local_plan
               Unreliable: false
               Value: true
           Enabled: true
