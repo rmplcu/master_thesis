@@ -4,7 +4,7 @@ clearing_rotation_allowed: false # No rotation when stuck
 controller_frequency: 5.0 # Controller will execute every x hz 
 controller_patience: 15.0
 
-#planner_frequency: 1.0
+planner_frequency: 0.2
 transform_tolerance: 0.5
 
 NavfnROS:

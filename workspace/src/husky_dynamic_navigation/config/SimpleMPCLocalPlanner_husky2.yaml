@@ -41,7 +41,7 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
 
   # My params
   priority_level: 1
-  corridor_vertices: [[6.0, -1.2], [6.0, 1.2], [-5.2, 1.2], [-5.2, -1.2]] # Oriented counterclockwise!
+  corridor_vertices: [[6.0, -1.5], [6.0, 1.5], [-6.0, 1.5], [-6.0, -1.5]] # Oriented counterclockwise!
   tf_prefix: "husky2_tf"
   consecutive_points_dist: 1.5 # next point will be Xm from current point
   
