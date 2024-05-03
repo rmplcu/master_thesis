@@ -3,24 +3,17 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
-
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
-
 #include <dynamic_reconfigure/server.h>
 #include <simple_mpc_local_planner/SimpleMPCLocalPlannerConfig.h>
-
 #include <angles/angles.h>
-
-#include <nav_msgs/Odometry.h>
-
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <nav_core/base_local_planner.h>
 #include <base_local_planner/latched_stop_rotate_controller.h>
-
 #include <base_local_planner/odometry_helper_ros.h>
 #include <base_local_planner/trajectory_planner_ros.h>
-
 #include <simple_mpc_local_planner/dwa_planner.h>
 
 namespace simple_mpc_local_planner {
@@ -100,9 +93,11 @@ namespace simple_mpc_local_planner {
       /**
        * @brief check if point is inside a corridor
        */
-      bool isPointInCorridor(geometry_msgs::Point point);
+      static bool isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor);
 
-      bool isCorridorInRange();
+      bool isCorridorInRange(std::vector<geometry_msgs::Point> corridor);
+
+      static bool isPathInCorridor(nav_msgs::Path path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step=1.0);
       //
 
       tf2_ros::Buffer* tf_; ///< @brief Used for transforming point clouds
@@ -129,9 +124,13 @@ namespace simple_mpc_local_planner {
       std::string tf_prefix_;
       std::vector<geometry_msgs::Point> corridor_vertices_;
       std::vector<nav_msgs::Path> global_plans_;
-      std::vector<nav_msgs::Odometry> odoms_;
+      std::vector<geometry_msgs::PoseWithCovarianceStamped> amcl_poses_;
       std::vector<ros::Subscriber> subscribers_;
+      int consecutive_points_dist_;
+      double global_costmap_resolution_;
       std::vector<geometry_msgs::PoseStamped> my_local_plan_;
+      bool entered_corridor_ = false;
+      bool exited_corridor_ = false;
       // --           --
       
       bool initialized_;

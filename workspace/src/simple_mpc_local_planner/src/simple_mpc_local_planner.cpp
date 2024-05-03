@@ -1,11 +1,8 @@
 #include <simple_mpc_local_planner/simple_mpc_local_planner.h>
 #include <Eigen/Core>
 #include <cmath>
-
 #include <ros/console.h>
-
 #include <pluginlib/class_list_macros.hpp>
-
 #include <geometry_msgs/Point.h>
 #include <base_local_planner/goal_functions.h>
 #include <nav_msgs/Path.h>
@@ -62,8 +59,16 @@ namespace simple_mpc_local_planner {
     //tf_prefix
     tf_prefix_ = nh.param("tf_prefix", std::string("/"));
 
+    //global costmap resolution
+    std::string resolution_str;
+    nh.searchParam("global_costmap/resolution", resolution_str);
+    global_costmap_resolution_ = nh.param(resolution_str, 0.05);
+
     //priority
     priority_ = nh.param("priority_level", 0);
+
+    //distance from two consecutive points in global plans
+    consecutive_points_dist_ = nh.param("consecutive_points_dist", 1.0);
 
     //corridor vertices
     XmlRpc::XmlRpcValue vertices_vec;
@@ -96,20 +101,20 @@ namespace simple_mpc_local_planner {
         return false;
       }
 
-      if (!nh.getParam(std::string("robot") + std::to_string(current_robot_idx) + std::string("/odom_topic"), odom_topic) && odom_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
-        ROS_ERROR("Couldn't get odom topic.");
+      if (!nh.getParam(std::string("robot") + std::to_string(current_robot_idx) + std::string("/amcl_topic"), odom_topic) && odom_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get amcl pose topic.");
         return false;
       }
 
-      odoms_.resize(odoms_.size()+1);
+      amcl_poses_.resize(amcl_poses_.size()+1);
       global_plans_.resize(global_plans_.size()+1);
 
       //Set odom callback and subscriber
       const std::string s_odom = static_cast<std::string>(odom_topic);
-      boost::function<void (const nav_msgs::Odometry&)> odom_cb = [this, current_robot_idx](const nav_msgs::Odometry& odom){
-        odoms_[current_robot_idx-1] = odom;
+      boost::function<void (const geometry_msgs::PoseWithCovarianceStamped&)> odom_cb = [this, current_robot_idx](const geometry_msgs::PoseWithCovarianceStamped& odom){
+        amcl_poses_[current_robot_idx-1] = odom;
       };
-      subscribers_.push_back(nh.subscribe<nav_msgs::Odometry>(s_odom, 1, odom_cb));
+      subscribers_.push_back(nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(s_odom, 1, odom_cb));
 
       //Set global plan callback and subscriber
       const std::string s_plan = static_cast<std::string>(global_plan_topic);
@@ -176,13 +181,13 @@ namespace simple_mpc_local_planner {
   }
 
   //Raytrace algo from the internet to check if point is inside the corridor
-  bool SimpleMPCLocalPlanner::isPointInCorridor(geometry_msgs::Point point) {
+  bool SimpleMPCLocalPlanner::isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor) {
     bool inside = false;
-    geometry_msgs::Point p1 = corridor_vertices_[0], p2;
+    geometry_msgs::Point p1 = corridor[0], p2;
 
-    for (int i=1; i<=corridor_vertices_.size(); i++) {
+    for (int i=1; i<=corridor.size(); i++) {
      
-      p2 = corridor_vertices_[i%corridor_vertices_.size()];
+      p2 = corridor[i%corridor.size()];
 
       //Point.y inside edge.y and point.x to the left of edge.x 
       if (point.y > std::min(p1.y, p2.y) && point.y <= std::max(p1.y, p2.y) && point.x <= std::max(p1.x, p2.x)) {
@@ -196,15 +201,25 @@ namespace simple_mpc_local_planner {
     return inside;
   }
   
-  bool SimpleMPCLocalPlanner::isCorridorInRange() {
+  bool SimpleMPCLocalPlanner::isCorridorInRange(std::vector<geometry_msgs::Point> corridor) {
     geometry_msgs::TransformStamped odom_to_map;
     geometry_msgs::Pose target_pose;
 
     odom_to_map = (*tf_).lookupTransform("map", tf_prefix_ + "/odom", ros::Time(0), ros::Duration(3.0));
     for (int i=my_local_plan_.size()-1; i>=0; i--) {    
       tf2::doTransform(my_local_plan_[i].pose, target_pose, odom_to_map);
-      if (isPointInCorridor(target_pose.position)) return true;
+      if (SimpleMPCLocalPlanner::isPointInCorridor(target_pose.position, corridor)) return true;
     }
+    return false;
+  }
+
+  bool SimpleMPCLocalPlanner::isPathInCorridor(nav_msgs::Path path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step) {
+    if (meter_step < 1) meter_step = 1;
+
+    for (int i=0; i<path.poses.size(); i+=std::max(1, int(meter_step/resolution))) {
+      if (SimpleMPCLocalPlanner::isPointInCorridor(path.poses[i].pose.position, corridor)) return true;
+    }
+
     return false;
   }
 
@@ -327,15 +342,39 @@ namespace simple_mpc_local_planner {
   }
 
   bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
-    
-    if (isCorridorInRange() && priority_ > 0) {
-      ROS_WARN_ONCE("Corridor in range: stop and wait.");
+    //My code
+    //Check if any path passes through corridor
+    auto found = std::find_if(global_plans_.begin(), global_plans_.end(), [this](nav_msgs::Path path) {
+      return SimpleMPCLocalPlanner::isPathInCorridor(path, corridor_vertices_, global_costmap_resolution_, consecutive_points_dist_);
+    });
+    int robot_in_corridor_idx  = std::distance(global_plans_.begin(), found); //index of plan that passes through corridor, size if global_plans if none 
+   
+    if (robot_in_corridor_idx != global_plans_.size() && isCorridorInRange(corridor_vertices_) && priority_ > 0) {
+      ROS_WARN_ONCE("Corridor in range while other robot plans on traversing it: stop and wait");
+
+      //Check if other robot entered corridor
+      if (isPointInCorridor(amcl_poses_[robot_in_corridor_idx].pose.pose.position, corridor_vertices_)) entered_corridor_ = true;
+      //Check if other robot exited corridor
+      exited_corridor_ = entered_corridor_ && !isPointInCorridor(amcl_poses_[robot_in_corridor_idx].pose.pose.position, corridor_vertices_);
+
+      if (exited_corridor_) {
+        ROS_INFO("Robot exited corridor: continue");
+        
+        //Reset path
+        nav_msgs::Path path;
+        global_plans_[robot_in_corridor_idx] = path;
+
+        //Reset entered and exited corridor
+        entered_corridor_ = false;
+        exited_corridor_ = false;
+      }
 
       std::vector<geometry_msgs::PoseStamped> empty_plan;
       publishLocalPlan(empty_plan);
 
       return true;
     }
+    //
 
     // dispatches to either dwa sampling control or stop and rotate control, depending on whether we have been close enough to goal
     if ( ! costmap_ros_->getRobotPose(current_pose_)) {
@@ -380,7 +419,7 @@ namespace simple_mpc_local_planner {
 
       if (!isOk) {
         //Try to clear costmaps and recompute
-        costmap_ros_->resetLayers();
+        costmap_ros_->resetLayers(); //My code
 
         ROS_WARN_NAMED("simple_mpc_local_planner", "DWA planner failed to produce path.");
         std::vector<geometry_msgs::PoseStamped> empty_plan;
