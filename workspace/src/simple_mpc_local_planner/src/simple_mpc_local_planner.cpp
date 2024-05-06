@@ -67,6 +67,9 @@ namespace simple_mpc_local_planner {
     //priority
     priority_ = nh.param("priority_level", 0);
 
+    //inflation amount
+    corridor_inflation_amount_ = nh.param("corridor_inflation_amount", 1.0);
+
     //distance from two consecutive points in global plans
     consecutive_points_dist_ = nh.param("consecutive_points_dist", 1.0);
 
@@ -90,6 +93,20 @@ namespace simple_mpc_local_planner {
       corridor_vertices_.push_back(vertex);
     }
 
+    //inflated vertices
+    inflated_corridor_vertices_ = SimpleMPCLocalPlanner::inflateCorridor(corridor_vertices_, corridor_inflation_amount_);
+
+    //corridor centroid square
+    double radius = 1.0;
+    geometry_msgs::Point centroid = SimpleMPCLocalPlanner::getCorridorCentroid(corridor_vertices_);
+    for (int i=0; i<4; i++) {
+      geometry_msgs::Point p;
+      p.x = centroid.x + radius*(i<2?1:-1);
+      p.y = centroid.y + radius*(i==0||i==3?-1:1);
+  
+      centroid_square_.push_back(p);
+    }
+  
     //global plan topics
     int current_robot_idx = 1;
     XmlRpc::XmlRpcValue robot_name;
@@ -201,15 +218,18 @@ namespace simple_mpc_local_planner {
     return inside;
   }
   
+  //Check if local plan furherst point is inside corridor
   bool SimpleMPCLocalPlanner::isCorridorInRange(std::vector<geometry_msgs::Point> corridor) {
+    if (my_local_plan_.size() == 0) return false;
+
     geometry_msgs::TransformStamped odom_to_map;
     geometry_msgs::Pose target_pose;
 
     odom_to_map = (*tf_).lookupTransform("map", tf_prefix_ + "/odom", ros::Time(0), ros::Duration(3.0));
-    for (int i=my_local_plan_.size()-1; i>=0; i--) {    
-      tf2::doTransform(my_local_plan_[i].pose, target_pose, odom_to_map);
-      if (SimpleMPCLocalPlanner::isPointInCorridor(target_pose.position, corridor)) return true;
-    }
+    
+    tf2::doTransform(my_local_plan_[my_local_plan_.size()-1].pose, target_pose, odom_to_map);
+    if (SimpleMPCLocalPlanner::isPointInCorridor(target_pose.position, corridor)) return true;
+    
     return false;
   }
 
@@ -221,6 +241,38 @@ namespace simple_mpc_local_planner {
     }
 
     return false;
+  }
+
+  geometry_msgs::Point SimpleMPCLocalPlanner::getCorridorCentroid(std::vector<geometry_msgs::Point> corridor) {
+    geometry_msgs::Point centroid;
+    
+    if (corridor.size()==0) return centroid;
+
+    for (geometry_msgs::Point p : corridor) {
+      centroid.x += p.x;
+      centroid.y += p.y;
+    }
+
+    centroid.x /= corridor.size();
+    centroid.y /= corridor.size();
+
+    return centroid;
+  }
+
+  std::vector<geometry_msgs::Point> SimpleMPCLocalPlanner::inflateCorridor(std::vector<geometry_msgs::Point> corridor, double amount) {
+    std::vector<geometry_msgs::Point> inflated_corridor;
+    
+    for (geometry_msgs::Point vertex : corridor) {
+      double angle = std::atan2(vertex.y, vertex.x);
+      
+      geometry_msgs::Point new_point;
+      new_point.x = vertex.x + amount * std::cos(angle);
+      new_point.y = vertex.y + amount * std::sin(angle);
+
+      inflated_corridor.push_back(new_point);
+    }
+
+    return inflated_corridor;
   }
 
   bool SimpleMPCLocalPlanner::setPlan(const std::vector<geometry_msgs::PoseStamped>& orig_global_plan) {
@@ -257,7 +309,6 @@ namespace simple_mpc_local_planner {
     base_local_planner::publishPlan(path, l_plan_pub_);
   }
 
-
   void SimpleMPCLocalPlanner::publishGlobalPlan(std::vector<geometry_msgs::PoseStamped>& path) {
     base_local_planner::publishPlan(path, g_plan_pub_);
   }
@@ -266,8 +317,6 @@ namespace simple_mpc_local_planner {
     //make sure to clean things up
     delete dsrv_;
   }
-
-
 
   bool SimpleMPCLocalPlanner::dwaComputeVelocityCommands(geometry_msgs::PoseStamped &global_pose, geometry_msgs::Twist& cmd_vel) {
     // dynamic window sampling approach to get useful velocity commands
@@ -343,22 +392,28 @@ namespace simple_mpc_local_planner {
 
   bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
     //My code
+
     //Check if any path passes through corridor
     auto found = std::find_if(global_plans_.begin(), global_plans_.end(), [this](nav_msgs::Path path) {
       return SimpleMPCLocalPlanner::isPathInCorridor(path, corridor_vertices_, global_costmap_resolution_, consecutive_points_dist_);
     });
     int robot_in_corridor_idx  = std::distance(global_plans_.begin(), found); //index of plan that passes through corridor, size if global_plans if none 
    
-    if (robot_in_corridor_idx != global_plans_.size() && isCorridorInRange(corridor_vertices_) && priority_ > 0) {
+    if (robot_in_corridor_idx != global_plans_.size() && isCorridorInRange(inflated_corridor_vertices_) && priority_ > 0) {
       ROS_WARN_ONCE("Corridor in range while other robot plans on traversing it: stop and wait");
+      stop_ = true;
+    }
 
-      //Check if other robot entered corridor
-      if (isPointInCorridor(amcl_poses_[robot_in_corridor_idx].pose.pose.position, corridor_vertices_)) entered_corridor_ = true;
+    if (stop_) {
+      //Check if other robot passed through center of corridor
+      if (isPointInCorridor(amcl_poses_[robot_in_corridor_idx].pose.pose.position, centroid_square_)) entered_corridor_ = true;
+      if (entered_corridor_) ROS_INFO_ONCE("Other robot has reached center of corridor");
+      
       //Check if other robot exited corridor
       exited_corridor_ = entered_corridor_ && !isPointInCorridor(amcl_poses_[robot_in_corridor_idx].pose.pose.position, corridor_vertices_);
 
       if (exited_corridor_) {
-        ROS_INFO("Robot exited corridor: continue");
+        ROS_INFO_ONCE("Other robot has exited corridor: continue");
         
         //Reset path
         nav_msgs::Path path;
@@ -367,8 +422,9 @@ namespace simple_mpc_local_planner {
         //Reset entered and exited corridor
         entered_corridor_ = false;
         exited_corridor_ = false;
+        stop_ = false;
       }
-
+      
       std::vector<geometry_msgs::PoseStamped> empty_plan;
       publishLocalPlan(empty_plan);
 

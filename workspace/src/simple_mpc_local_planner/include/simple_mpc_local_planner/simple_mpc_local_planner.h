@@ -9,6 +9,7 @@
 #include <simple_mpc_local_planner/SimpleMPCLocalPlannerConfig.h>
 #include <angles/angles.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/Point.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <nav_core/base_local_planner.h>
 #include <base_local_planner/latched_stop_rotate_controller.h>
@@ -93,11 +94,15 @@ namespace simple_mpc_local_planner {
       /**
        * @brief check if point is inside a corridor
        */
-      static bool isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor);
-
       bool isCorridorInRange(std::vector<geometry_msgs::Point> corridor);
 
+      static bool isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor);
+
       static bool isPathInCorridor(nav_msgs::Path path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step=1.0);
+
+      static std::vector<geometry_msgs::Point> inflateCorridor(std::vector<geometry_msgs::Point> corridor, double amount);
+
+      static geometry_msgs::Point getCorridorCentroid(std::vector<geometry_msgs::Point> corridor);
       //
 
       tf2_ros::Buffer* tf_; ///< @brief Used for transforming point clouds
@@ -120,17 +125,21 @@ namespace simple_mpc_local_planner {
 
       // -- My params --
       int priority_; //Low value equals higher priority
+      int consecutive_points_dist_;
       bool successful_initialization_ = false;
+      bool exited_corridor_ = false;
+      bool stop_ = false;
+      bool entered_corridor_ = false;
+      double corridor_inflation_amount_;
+      double global_costmap_resolution_;
       std::string tf_prefix_;
-      std::vector<geometry_msgs::Point> corridor_vertices_;
+      std::vector<geometry_msgs::Point> centroid_square_; //TODO list
+      std::vector<ros::Subscriber> subscribers_;
+      std::vector<geometry_msgs::Point> corridor_vertices_; // TODO many corridors
+      std::vector<geometry_msgs::Point> inflated_corridor_vertices_;
       std::vector<nav_msgs::Path> global_plans_;
       std::vector<geometry_msgs::PoseWithCovarianceStamped> amcl_poses_;
-      std::vector<ros::Subscriber> subscribers_;
-      int consecutive_points_dist_;
-      double global_costmap_resolution_;
       std::vector<geometry_msgs::PoseStamped> my_local_plan_;
-      bool entered_corridor_ = false;
-      bool exited_corridor_ = false;
       // --           --
       
       bool initialized_;
