@@ -15,8 +15,8 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   min_vel_rot: 0.0
 
   # Goal Tolerance Parameters
-  yaw_goal_tolerance: 0.75
-  xy_goal_tolerance: 0.2
+  yaw_goal_tolerance: 3.14
+  xy_goal_tolerance: 0.5
   latch_xy_goal_tolerance: false
 
   # # Forward Simulation Parameters
@@ -42,7 +42,8 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   # My params
   priority_level: 1
   corridor_vertices: [[4.5, -1.2], [4.5, 1.2], [-4.5, 1.2], [-4.5, -1.2]] # Oriented counterclockwise!
-  corridor_inflation_amount: 3.0 #meters default 1.0
+  corridor1: [[4.5, -1.2], [4.5, 1.2], [-4.5, 1.2], [-4.5, -1.2]] # Oriented counterclockwise!
+  corridor_inflation_amount: 1.5 #meters default 1.0
   tf_prefix: "husky2_tf"
   consecutive_points_dist: 1.5 # next point will be Xm from current point
   

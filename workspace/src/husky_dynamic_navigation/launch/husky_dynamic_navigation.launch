@@ -20,7 +20,7 @@
 
 
   <arg name="narrow_corridor_husky2_x" default="8.0"/>
-  <arg name="narrow_corridor_husky2_y" default="9.0"/>
+  <arg name="narrow_corridor_husky2_y" default="8.0"/>
   <arg name="narrow_corridor_husky2_yaw" default="-1.5707"/>
 
   <!---->

@@ -15,8 +15,8 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   min_vel_rot: 0.0
 
   # Goal Tolerance Parameters
-  yaw_goal_tolerance: 0.75
-  xy_goal_tolerance: 0.2
+  yaw_goal_tolerance: 3.14
+  xy_goal_tolerance: 0.5
   latch_xy_goal_tolerance: false
 
   # # Forward Simulation Parameters

@@ -99,6 +99,8 @@ namespace simple_mpc_local_planner {
       static bool isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor);
 
       static bool isPathInCorridor(nav_msgs::Path path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step=1.0);
+      
+      static bool isPathInCorridor(const std::vector<geometry_msgs::PoseStamped>& path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step=1.0);
 
       static std::vector<geometry_msgs::Point> inflateCorridor(std::vector<geometry_msgs::Point> corridor, double amount);
 
@@ -126,6 +128,7 @@ namespace simple_mpc_local_planner {
       // -- My params --
       int priority_; //Low value equals higher priority
       int consecutive_points_dist_;
+      int current_corridor_idx_ = -1;
       bool successful_initialization_ = false;
       bool exited_corridor_ = false;
       bool stop_ = false;
@@ -135,10 +138,10 @@ namespace simple_mpc_local_planner {
       std::string tf_prefix_;
       std::vector<geometry_msgs::Point> centroid_square_; //TODO list
       std::vector<ros::Subscriber> subscribers_;
-      std::vector<geometry_msgs::Point> corridor_vertices_; // TODO many corridors
-      std::vector<geometry_msgs::Point> inflated_corridor_vertices_;
-      std::vector<nav_msgs::Path> global_plans_;
-      std::vector<geometry_msgs::PoseWithCovarianceStamped> amcl_poses_;
+      std::vector<std::vector<geometry_msgs::Point>> corridors_; // TODO many corridors
+      //std::vector<geometry_msgs::Point> inflated_corridor_vertices_;
+      nav_msgs::Path global_plan_;
+      geometry_msgs::PoseWithCovarianceStamped amcl_pose_;
       std::vector<geometry_msgs::PoseStamped> my_local_plan_;
       // --           --
       
