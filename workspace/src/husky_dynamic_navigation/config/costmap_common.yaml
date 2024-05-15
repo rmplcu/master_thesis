@@ -10,7 +10,7 @@ transform_tolerance: 5.0
 resolution: 0.01
 
 obstacle_range: 10.0
-raytrace_range: 13.0
+raytrace_range: 10.0
 
 #layer definitions
 static:
@@ -23,5 +23,5 @@ obstacles_laser:
 
 inflation:
     inflation_radius: 0.80
-    cost_scaling_factor: 2.0
+    cost_scaling_factor: 2.2
 

@@ -95,7 +95,7 @@ namespace simple_mpc_local_planner {
       corridor_num++;
     }
 
-    ROS_INFO("Found %d corridors", corridor_num-1);
+    ROS_INFO("Found %d corridors", corridor_num);
 
     if (priority_ == 0) return true; //Run as DWA
 
@@ -412,7 +412,7 @@ namespace simple_mpc_local_planner {
 
       std::vector<geometry_msgs::Point> corridor = corridors_[current_corridor_idx_];
       std::vector<geometry_msgs::Point> inflated_corridor = inflateCorridor(corridor, corridor_inflation_amount_);
-      std::vector<geometry_msgs::Point> inflated_corridor2 = inflateCorridor(corridor, corridor_inflation_amount_+0.5*corridor_inflation_amount_);
+      std::vector<geometry_msgs::Point> inflated_corridor2 = inflateCorridor(corridor, corridor_inflation_amount_+2.0);
       
       //Check if any other path passes through corridor
       bool is_in_corridor = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, corridor, global_costmap_resolution_, consecutive_points_dist_);

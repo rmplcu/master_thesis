@@ -19,7 +19,7 @@
   <arg name="narrow_corridor_husky1_yaw" default="1.5707"/>
 
 
-  <arg name="narrow_corridor_husky2_x" default="8.0"/>
+  <arg name="narrow_corridor_husky2_x" default="7.0"/>
   <arg name="narrow_corridor_husky2_y" default="8.0"/>
   <arg name="narrow_corridor_husky2_yaw" default="-1.5707"/>
 
