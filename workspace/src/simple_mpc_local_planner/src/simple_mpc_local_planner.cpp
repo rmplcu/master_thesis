@@ -292,7 +292,7 @@ namespace simple_mpc_local_planner {
         geometry_msgs::Point p;
         p.x = centroid.x + radius*(i<2?1:-1);
         p.y = centroid.y + radius*(i==0||i==3?-1:1);
-    
+
         centroid_square_.push_back(p);
       }
     }
@@ -424,11 +424,15 @@ namespace simple_mpc_local_planner {
 
       if (stop_) {
         //Check if other robot passed through center of corridor
-        if (isPointInCorridor(amcl_pose_.pose.pose.position, centroid_square_)) entered_corridor_ = true;
-        if (entered_corridor_) ROS_INFO_ONCE("Other robot has reached center of corridor");
+        if (isPointInCorridor(amcl_pose_.pose.pose.position, centroid_square_)) {
+          entered_corridor_ = true;
+          ROS_INFO_ONCE("Other robot has reached center of corridor");
+        }
         
         //Check if other robot exited corridor
         exited_corridor_ = entered_corridor_ && !isPointInCorridor(amcl_pose_.pose.pose.position, inflated_corridor2);
+
+        //ROS_WARN("%f, %f, %d", amcl_pose_.pose.pose.position.x, amcl_pose_.pose.pose.position.y, isPointInCorridor(amcl_pose_.pose.pose.position, inflated_corridor2));
 
         if (exited_corridor_) {
           ROS_INFO_ONCE("Other robot has exited corridor: continue");
