@@ -207,6 +207,9 @@ Visualization Manager:
                   Unreliable: false
                   Value: false
                   Visibility:
+                    Corridors:
+                      Polygon: true
+                      Value: true
                     Grid: true
                     Robot1:
                       Navigation:
@@ -765,21 +768,16 @@ Visualization Manager:
                   Unreliable: false
                   Value: false
                   Visibility:
+                    Corridors:
+                      Polygon: true
+                      Value: true
                     Grid: true
                     Robot1:
                       "": true
                       Value: true
                     Robot2:
                       Navigation:
-                        Exploration:
-                          Exploration Costmap: true
-                          Exploration Marker: true
-                          Value: true
-                        Global Costmap: true
-                        Global Plan: true
-                        Local Costmap: true
-                        Local Plan: true
-                        Static Map: true
+                        "": true
                         Value: true
                       Polygon: true
                       RobotModel: true
@@ -1168,6 +1166,37 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: Robot2
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 143; 89; 2
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /husky2/move_base/SimpleMPCLocalPlanner/current_corridor
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 193; 125; 17
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /husky2/move_base/SimpleMPCLocalPlanner/inflated_corridor
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 233; 185; 110
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /husky2/move_base/SimpleMPCLocalPlanner/inflated_corridor2
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: Corridors
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -1201,7 +1230,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 24.086772918701172
+      Distance: 23.274648666381836
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

@@ -77,27 +77,31 @@ namespace simple_mpc_local_planner {
     int corridor_num = 1;
     XmlRpc::XmlRpcValue vertices_vec;
     while(nh.getParam("corridor" + std::to_string(corridor_num), vertices_vec)) {
-      std::vector<geometry_msgs::Point> corridor;
+      geometry_msgs::Polygon corridor;
       for (int i=0; i<vertices_vec.size(); i++) {
         double x, y;
-        geometry_msgs::Point vertex;
+        geometry_msgs::Point32 vertex;
         try {
-          vertex.x = vertices_vec[i][0];
-          vertex.y = vertices_vec[i][1];
+          vertex.x = (double)vertices_vec[i][0];
+          vertex.y = (double)vertices_vec[i][1];
         } catch (...) {
           ROS_ERROR("Unable to fetch vertex.");
           return false;
         }
-        corridor.push_back(vertex);
+        corridor.points.push_back(vertex);
       }
-
       corridors_.push_back(corridor);
       corridor_num++;
     }
 
-    ROS_INFO("Found %d corridors", corridor_num);
+    ROS_INFO("Found %d corridors", corridor_num-1);
 
     if (priority_ == 0) return true; //Run as DWA
+
+    //Corridor publishers
+    corridor_pub_ = nh.advertise<geometry_msgs::PolygonStamped>("current_corridor", 1);
+    inflated_corridor_pub_ = nh.advertise<geometry_msgs::PolygonStamped>("inflated_corridor", 1);
+    inflated_corridor2_pub_ = nh.advertise<geometry_msgs::PolygonStamped>("inflated_corridor2", 1);
 
     //global plan topic
     XmlRpc::XmlRpcValue global_plan_topic;
@@ -182,13 +186,13 @@ namespace simple_mpc_local_planner {
   }
 
   //Raytrace algo from the internet to check if point is inside the corridor
-  bool SimpleMPCLocalPlanner::isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor) {
+  bool SimpleMPCLocalPlanner::isPointInCorridor(geometry_msgs::Point point, geometry_msgs::Polygon corridor) {
     bool inside = false;
-    geometry_msgs::Point p1 = corridor[0], p2;
+    geometry_msgs::Point32 p1 = corridor.points[0], p2;
 
-    for (int i=1; i<=corridor.size(); i++) {
+    for (int i=1; i<=corridor.points.size(); i++) {
      
-      p2 = corridor[i%corridor.size()];
+      p2 = corridor.points[i%corridor.points.size()];
 
       //Point.y inside edge.y and point.x to the left of edge.x 
       if (point.y > std::min(p1.y, p2.y) && point.y <= std::max(p1.y, p2.y) && point.x <= std::max(p1.x, p2.x)) {
@@ -203,7 +207,7 @@ namespace simple_mpc_local_planner {
   }
   
   //Check if local plan furherst point is inside corridor
-  bool SimpleMPCLocalPlanner::isCorridorInRange(std::vector<geometry_msgs::Point> corridor) {
+  bool SimpleMPCLocalPlanner::isCorridorInRange(geometry_msgs::Polygon corridor) {
     if (my_local_plan_.size() == 0) return false;
 
     geometry_msgs::TransformStamped odom_to_map;
@@ -217,7 +221,7 @@ namespace simple_mpc_local_planner {
     return false;
   }
 
-  bool SimpleMPCLocalPlanner::isPathInCorridor(nav_msgs::Path path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step) {
+  bool SimpleMPCLocalPlanner::isPathInCorridor(nav_msgs::Path path, geometry_msgs::Polygon corridor, double resolution, double meter_step) {
     if (meter_step < 1) meter_step = 1;
 
     for (int i=0; i<path.poses.size(); i+=std::max(1, int(meter_step/resolution))) {
@@ -227,7 +231,7 @@ namespace simple_mpc_local_planner {
     return false;
   }
 
-  bool SimpleMPCLocalPlanner::isPathInCorridor(const std::vector<geometry_msgs::PoseStamped>& path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step) {
+  bool SimpleMPCLocalPlanner::isPathInCorridor(const std::vector<geometry_msgs::PoseStamped>& path, geometry_msgs::Polygon corridor, double resolution, double meter_step) {
     if (meter_step < 1) meter_step = 1;
 
     for (int i=0; i<path.size(); i+=std::max(1, int(meter_step/resolution))) {
@@ -237,33 +241,33 @@ namespace simple_mpc_local_planner {
     return false;    
   }
 
-  geometry_msgs::Point SimpleMPCLocalPlanner::getCorridorCentroid(std::vector<geometry_msgs::Point> corridor) {
+  geometry_msgs::Point SimpleMPCLocalPlanner::getCorridorCentroid(geometry_msgs::Polygon corridor) {
     geometry_msgs::Point centroid;
     
-    if (corridor.size()==0) return centroid;
+    if (corridor.points.size()==0) return centroid;
 
-    for (geometry_msgs::Point p : corridor) {
+    for (geometry_msgs::Point32 p : corridor.points) {
       centroid.x += p.x;
       centroid.y += p.y;
     }
 
-    centroid.x /= corridor.size();
-    centroid.y /= corridor.size();
+    centroid.x /= corridor.points.size();
+    centroid.y /= corridor.points.size();
 
     return centroid;
   }
 
-  std::vector<geometry_msgs::Point> SimpleMPCLocalPlanner::inflateCorridor(std::vector<geometry_msgs::Point> corridor, double amount) {
-    std::vector<geometry_msgs::Point> inflated_corridor;
+  geometry_msgs::Polygon SimpleMPCLocalPlanner::inflateCorridor(geometry_msgs::Polygon corridor, double amount) {
+    geometry_msgs::Polygon inflated_corridor;
     
-    for (geometry_msgs::Point vertex : corridor) {
+    for (geometry_msgs::Point32 vertex : corridor.points) {
       double angle = std::atan2(vertex.y, vertex.x);
       
-      geometry_msgs::Point new_point;
+      geometry_msgs::Point32 new_point;
       new_point.x = vertex.x + amount * std::cos(angle);
       new_point.y = vertex.y + amount * std::sin(angle);
 
-      inflated_corridor.push_back(new_point);
+      inflated_corridor.points.push_back(new_point);
     }
 
     return inflated_corridor;
@@ -289,11 +293,11 @@ namespace simple_mpc_local_planner {
       double radius = 1.0;
       geometry_msgs::Point centroid = SimpleMPCLocalPlanner::getCorridorCentroid(corridors_[current_corridor_idx_]);
       for (int i=0; i<4; i++) {
-        geometry_msgs::Point p;
+        geometry_msgs::Point32 p;
         p.x = centroid.x + radius*(i<2?1:-1);
         p.y = centroid.y + radius*(i==0||i==3?-1:1);
 
-        centroid_square_.push_back(p);
+        centroid_square_.points.push_back(p);
       }
     }
 
@@ -408,16 +412,30 @@ namespace simple_mpc_local_planner {
 
   bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
     //My code
-    if (current_corridor_idx_ != -1) { //my path passes through a corridor if such value is not -1
+    if (current_corridor_idx_ != -1 && priority_ > 0) { //my path passes through a corridor if such value is not -1
 
-      std::vector<geometry_msgs::Point> corridor = corridors_[current_corridor_idx_];
-      std::vector<geometry_msgs::Point> inflated_corridor = inflateCorridor(corridor, corridor_inflation_amount_);
-      std::vector<geometry_msgs::Point> inflated_corridor2 = inflateCorridor(corridor, corridor_inflation_amount_+2.0);
-      
+      geometry_msgs::Polygon corridor = corridors_[current_corridor_idx_];
+      geometry_msgs::Polygon inflated_corridor = inflateCorridor(corridor, corridor_inflation_amount_);
+      geometry_msgs::Polygon inflated_corridor2 = inflateCorridor(corridor, corridor_inflation_amount_+2.0);
+
+      //Publish corridors for visualization
+      geometry_msgs::PolygonStamped pub_poly;
+      pub_poly.header.frame_id = "map";
+      pub_poly.header.stamp = ros::Time::now();
+
+      pub_poly.polygon = corridor;
+      corridor_pub_.publish(pub_poly);
+
+      pub_poly.polygon = inflated_corridor;
+      inflated_corridor_pub_.publish(pub_poly);
+
+      pub_poly.polygon = inflated_corridor2;
+      inflated_corridor2_pub_.publish(pub_poly);
+
       //Check if any other path passes through corridor
       bool is_in_corridor = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, corridor, global_costmap_resolution_, consecutive_points_dist_);
 
-      if (is_in_corridor && isCorridorInRange(inflated_corridor) && priority_ > 0) {
+      if (is_in_corridor && isCorridorInRange(inflated_corridor)) {
         ROS_WARN_ONCE("Corridor in range while other robot plans on traversing it: stop and wait");
         stop_ = true;
       }

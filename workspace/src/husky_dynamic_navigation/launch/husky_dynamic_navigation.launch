@@ -26,7 +26,7 @@
 
   <!-- Narrow Corridors x,y -->
   <arg name="narrow_corridors_husky1_x" value="-8.0"/>
-  <arg name="narrow_corridors_husky1_y" value="-8.0"/>
+  <arg name="narrow_corridors_husky1_y" value="8.0"/>
   <arg name="narrow_corridors_husky1_yaw" value="1.5707"/>
 
 

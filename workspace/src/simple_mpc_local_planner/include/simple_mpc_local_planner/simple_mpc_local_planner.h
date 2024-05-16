@@ -10,6 +10,7 @@
 #include <angles/angles.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Polygon.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <nav_core/base_local_planner.h>
 #include <base_local_planner/latched_stop_rotate_controller.h>
@@ -94,17 +95,17 @@ namespace simple_mpc_local_planner {
       /**
        * @brief check if point is inside a corridor
        */
-      bool isCorridorInRange(std::vector<geometry_msgs::Point> corridor);
+      bool isCorridorInRange(geometry_msgs::Polygon corridor);
 
-      static bool isPointInCorridor(geometry_msgs::Point point, std::vector<geometry_msgs::Point> corridor);
+      static bool isPointInCorridor(geometry_msgs::Point point, geometry_msgs::Polygon corridor);
 
-      static bool isPathInCorridor(nav_msgs::Path path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step=1.0);
+      static bool isPathInCorridor(nav_msgs::Path path, geometry_msgs::Polygon corridor, double resolution, double meter_step=1.0);
       
-      static bool isPathInCorridor(const std::vector<geometry_msgs::PoseStamped>& path, std::vector<geometry_msgs::Point> corridor, double resolution, double meter_step=1.0);
+      static bool isPathInCorridor(const std::vector<geometry_msgs::PoseStamped>& path, geometry_msgs::Polygon corridor, double resolution, double meter_step=1.0);
 
-      static std::vector<geometry_msgs::Point> inflateCorridor(std::vector<geometry_msgs::Point> corridor, double amount);
+      static geometry_msgs::Polygon inflateCorridor(geometry_msgs::Polygon corridor, double amount);
 
-      static geometry_msgs::Point getCorridorCentroid(std::vector<geometry_msgs::Point> corridor);
+      static geometry_msgs::Point getCorridorCentroid(geometry_msgs::Polygon corridor);
       //
 
       tf2_ros::Buffer* tf_; ///< @brief Used for transforming point clouds
@@ -135,10 +136,13 @@ namespace simple_mpc_local_planner {
       bool entered_corridor_ = false;
       double corridor_inflation_amount_;
       double global_costmap_resolution_;
+      ros::Publisher corridor_pub_; //visualization purpose
+      ros::Publisher inflated_corridor_pub_; //visualization purpose
+      ros::Publisher inflated_corridor2_pub_; //visualization purpose
       std::string tf_prefix_;
-      std::vector<geometry_msgs::Point> centroid_square_; //TODO list
+      geometry_msgs::Polygon centroid_square_;
       std::vector<ros::Subscriber> subscribers_;
-      std::vector<std::vector<geometry_msgs::Point>> corridors_; // TODO many corridors
+      std::vector<geometry_msgs::Polygon> corridors_; 
       //std::vector<geometry_msgs::Point> inflated_corridor_vertices_;
       nav_msgs::Path global_plan_;
       geometry_msgs::PoseWithCovarianceStamped amcl_pose_;
