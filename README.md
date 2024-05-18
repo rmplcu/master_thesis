@@ -38,7 +38,9 @@ This package depends on:
 - [ros husky](http://wiki.ros.org/Robots/Husky)
 - [mpc_local_planner](http://wiki.ros.org/mpc_local_planner) (mpc_local_planner_msg, mpc_local_planner_examples)
 - [gazebo_ros_2DMap_plugin](https://github.com/marinaKollmitz/gazebo_ros_2Dmap_plugin)
-- [spatio_temporal_voxel_layer](http://wiki.ros.org/spatio_temporal_voxel_layer) 
+- [spatio_temporal_voxel_layer](http://wiki.ros.org/spatio_temporal_voxel_layer)
+- [ira_laser_tools](http://wiki.ros.org/ira_laser_tools)
+- [pointcloud_to_laserscan](https://wiki.ros.org/pointcloud_to_laserscan)
 
 ## Deatiled information
 
