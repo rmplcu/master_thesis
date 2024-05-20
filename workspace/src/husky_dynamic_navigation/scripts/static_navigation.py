@@ -10,7 +10,7 @@ from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
 # x: x coordinate position
 # y: y coordinate position 
 def move_robot(x, y):
-    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+    client = actionlib.SimpleActionClient('husky1/move_base', MoveBaseAction)
     
     if (not client.wait_for_server(rospy.Duration(10))):
         rospy.logerr('Action server timeout')

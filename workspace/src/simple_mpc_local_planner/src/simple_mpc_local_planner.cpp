@@ -452,7 +452,7 @@ namespace simple_mpc_local_planner {
 
         //ROS_WARN("%f, %f, %d", amcl_pose_.pose.pose.position.x, amcl_pose_.pose.pose.position.y, isPointInCorridor(amcl_pose_.pose.pose.position, inflated_corridor2));
 
-        if (exited_corridor_) {
+        if (exited_corridor_ || !is_in_corridor) {
           ROS_INFO_ONCE("Other robot has exited corridor: continue");
           
           //Reset path

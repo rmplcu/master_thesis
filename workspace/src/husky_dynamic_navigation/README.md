@@ -11,35 +11,84 @@ Run ``` roslaunch husky_dynamic_navigation husky_dynamic_navigation.launch world
 Here is the list of the configuration files and their use.
 
 - [amcl_params.yaml](config/amcl_params.yaml): configuration file for amcl package.
+
 - [control_husky1.yaml](config/control_husky1.yaml): used to set the physics parameters of the first robot, such as max speed, max accelleration, etc. 
+
 - [control_husky2.yaml](config/control_husky2.yaml): used to set the physics parameter of the second robot, such as max speed, max accelleration, etc
+
 - [costmap_common.yaml](config/costmap_common.yaml): contains the parameters that both local and global costmap use.
+
 - [costmap_global_static.yaml](config/costmap_global_static.yaml): contains the parameter used only by the global costmap.
+
 - [costmap_local.yaml](config/costmap_local.yaml): contains the parameter used only by the local costmap.
+
 - [localization_husky1.yaml](config/localization_husky1.yaml): specifies the parameters used for localization of the first husky, such as odom and imu parameters.
+
 - [localization_husky2.yaml](config/localization_husky2.yaml): specifies the parameters used for localization of the second husky, such as odom and imu parameters.
+
 - [planner.yaml](config/planner.yaml): contains the parameters for the local and global planners.
+
 - [rviz.rviz](config/rviz.rviz): the save file of RVIZ.
+
 - [SimpleMPCLocalPlanner_husky1.yaml](config/SimpleMPCLocalPlanner_husky1.yaml): the configuration file for the [SimpleMPCLocalPlanner](/workspace/src/simple_mpc_local_planner/README.md) local planner of the first husky.
+
 - [SimpleMPCLocalPlanner_husky2.yaml](config/SimpleMPCLocalPlanner_husky2.yaml): the configuration file for the [SimpleMPCLocalPlanner](/workspace/src/simple_mpc_local_planner/README.md) local planner of the second husky.
+
 - [twist_mux_husky1.yaml](config/twist_mux_husky1.yaml): contains the parameter for the interactive marker, joy teleop and external stop for the first robot.
+
 - [twist_mux_husky2.yaml](config/twist_mux_husky2.yaml): contains the parameter for the interactive marker, joy teleop and external stop for the second robot.
 
 ## Launch files
 
-- **husky_dynamic_navigation**: the main launch file.
+- **husky_dynamic_navigation**: the main launch file. Used to spawn the huskies and their navigation stack. It is possible to define some additional parameters:
+    
+    - *world_name*: the name of the gazebo world where the huskies will be spawned. It must have one of the following values: *playpen* (default), *narrow_corridor*, *narrow_corridors*.
+    - *map_file*: the name of the map file to use. If not specified, the map will be selected w.r.t. the world name.
+    - *h1_base_local_planner_package*: the package which the local planner that the first robot uses belongs to.
+    - *h2_base_local_planner_package*: the package which the local planner that the second robot uses belongs to.
+    - *h1_base_local_planner*: the name of the local planner that the first robot uses.
+    - *h1_base_local_planner*: the name of the local planner that the first robot uses.
 
-- **husky_control**: used to initialize the huskies. Loads the robot description and the control_husky1.yaml (or control_husky2.yaml). Spawns the nodes laser_multimerger, pointcloud_to_laserscan, base_controller_spawner, efk_localization, interactive_marker, state_publisher and twist_mux.
+- **husky_control.launch**: used to initialize a single husky. Loads the robot description and the control_husky1.yaml (or control_husky2.yaml). Spawns the nodes laser_multimerger, pointcloud_to_laserscan, base_controller_spawner, efk_localization, interactive_marker, state_publisher and twist_mux.
+
+- **move_base.launch**: used to initialize the navigation stack of a single husky. Sets the local and global planners, the global and local costmap with the respective configuration file.
+
+- **single_amcl.launch**: initializes the amcl node for a single robot, selecting the parameters from the configuration file.
+
+- **multi_amcl.launch**: uses the *move_base.launch* file to spawn the navigation stacks and the *single_amcl.launch* file to initialize the amcl nodes, for both the robots. It sets up the namespace and the tf_prefixe for each husky.
+
+- **spawn_single_robot.launch**: spawns the model of a single husky in gazebo and uses the *husky_control.launch* to spawn all the other nodes needed.
+
+- **spawn_robots.launch**: uses the *spawn_single_robot.launch* file to spawn two huskies in gazebo with different namespaces and tf_prefixes.
+
+- **world.launch**: initializes gazebo with the specified world.
 
 ## Map files
 
 The map file for each world are generated with [gazebo_ros_2DMap_plugin](https://github.com/marinaKollmitz/gazebo_ros_2Dmap_plugin).
 
+Only the maps of the *playpen*, *narrow_corridor* and *narrow_corridors* world are present.
+
 ## Scripts
+
+This folder contains some useful scripts and a simple class to control a husky.
+
+- [control_husky.py](scripts/husky_dynamic_navigation/control_husky.py) is a library file and defines a class that allows to send a goal (either with a pose object or with the x,y coordinates) and to get the current position of the husky. When creating a ControlHusky object, the *name* argument is the namespace of the husky to be controlled.
+
+- *mpc_navigation_opposite_directions.py*: the two robots navigate in opposite directions by setting the goal of the first robot as the starting position of the second robot and vice versa.
+
+- *mpc_navigation_diagonal.py*: the two robots navigate in opposite directions having as goal the starting position of the other robot, shifted of 1m on the y axis.
+
+- *mpc_navigation_moving_obstacle*: meaningful only in the *playpen* world, set the goal of one robot so that its path will intersect the path of the moving obstacle located in the playpen world.
+
+- *static_navigation_multiple_huskies*: gets from the user the x and y coordinates representing the goal of the first husky. Then it immediately repeats the same process for the second husky.
+
+- *static_navigation.py*: can be used to send a goal to the move_base node of the first robot. 
 
 ## Urdf files
 
 - [hokuyo_ust10.urdf.xacro](urdf/hokuyo_ust10.urdf.xacro): the urdf file of the 2d laser.
+
 - [husky.urdf.xacro](urdf/husky.urdf.xacro): the husky urdf file.
 
 ## World files
@@ -47,5 +96,7 @@ The map file for each world are generated with [gazebo_ros_2DMap_plugin](https:/
 Three world are present in this package.
 
 - *playpen.world*: a general outdoor warehouse world, with an obstacle (representing a human) moving along a predefined path.
+
 - *narrow_corridor.world*: a world with two big rooms connected with a narrow corridor.
+
 - *narrow_corridors.world*: a world with two big rooms connected with two narrow corridors.

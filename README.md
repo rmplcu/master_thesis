@@ -1,13 +1,13 @@
 # Master Thesis Project: autonomous navigation of mobile robots in narrow corridors.
 
 ## Author
-Luca Rompani - 16/05/2024
+Luca Rompani: 1/03/2024 - current
 
 ## Description
 
 This project focus on the navigation of two husky robots in an environment characterized by a narrow corridor, very common in many warehouses.
 
-The adopted strategy is based on priority. the robot with a lower level of priority will wait for the other robot to pass trough the corridor bofore starting traversing it. In this way the robots won't get stuck inside the corridor, too narrow to fit both.
+The adopted strategy is based on priority. the robot with a lower level of priority will wait for the other robot to pass through the corridor bofore starting traversing it. In this way the robots won't get stuck inside the corridor, too narrow to fit both.
 
 ## How to use
 
@@ -45,5 +45,5 @@ This package depends on:
 ## Deatiled information
 
 For more information:
- - regarding *husky_dynamic_navigation* package, click [here](workspace/src/husky_dynamic_navigation/README.md).
- - regarding *simple_mpc_local_planner* pacakge, click [here](workspace/src/simple_mpc_local_planner/README.md).
+    - regarding *husky_dynamic_navigation* package, click [here](workspace/src/husky_dynamic_navigation/README.md).
+    - regarding *simple_mpc_local_planner* pacakge, click [here](workspace/src/simple_mpc_local_planner/README.md).

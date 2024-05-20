@@ -42,7 +42,7 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   # My params
   priority_level: 1
   corridor1: [[4.5, -1.2], [4.5, 1.2], [-4.5, 1.2], [-4.5, -1.2]] # Oriented counterclockwise!
-  #corridor2: [[4.5, 6.0], [4.5, 8.0], [-4.5, 8.0], [-4.5, 6.0]]
+  corridor2: [[4.5, 6.0], [4.5, 8.0], [-4.5, 8.0], [-4.5, 6.0]]
   
   corridor_inflation_amount: 1.0 #meters default 1.0
   tf_prefix: "husky2_tf"
