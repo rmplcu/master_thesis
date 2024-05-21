@@ -54,7 +54,9 @@ It has all the parameters used by the DWA local planner with these some other on
 It was tested with a rectangular corridor, but it should work with every type of polygon. The vertices are a list of two elements (coordinates x and y) and they **MUST** be ordered counterclockwise (starting point doesn't matter).
 *«x»* indicates an integer: it starts from 1 and it is incremented by one for each corridor. (e.g. if there are 3 corridors: *corridor1*, *corridor2* and *corridor3* will be the 3 lists of vertices).
 
-- **corridor_inflation_amount**: the amount of meters to inflate the corridor of. The inflated corridor is the one described in point 2 of [this](#implementation-notes) section. A value of 1.5 works well.
+- **inflation_scaling_factor**: the scaling factor to inflate the corridor of. The inflated corridor is the one described in point 2 of the [implementation](#implementation-notes) section. A value of 1.25 works well; the inflated corridor will be 25% bigger than the original one.
+
+- **inflation_scaling_factor2**: the scaling factor to inflate the corridor of. The inflated corridor is the one described in point 3 of the [implementation](#implementation-notes) section. A value of 1.6 works well; the inflated corridor will be 60% bigger than the original one.
 
 - **tf_prefix**: the tf prefix of the robot.
 

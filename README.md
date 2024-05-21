@@ -42,9 +42,9 @@ This package depends on:
 - [ira_laser_tools](http://wiki.ros.org/ira_laser_tools)
 - [pointcloud_to_laserscan](https://wiki.ros.org/pointcloud_to_laserscan)
 
-## Deatiled information
-
-For more information:
+## Other information
 
 - regarding *husky_dynamic_navigation* package, click [here](workspace/src/husky_dynamic_navigation/README.md).
 - regarding *simple_mpc_local_planner* pacakge, click [here](workspace/src/simple_mpc_local_planner/README.md).
+
+The file *run.sh* was used to test the ros husky package and it is not currently used.
