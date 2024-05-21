@@ -24,9 +24,13 @@ A robot with a lower level of priority will perform the following actions (in or
 - Otherwise continue normally as DWA.
 
 To check if the other robot has traversed the corridor:
-- Check if it has reached the center of the corridor (avoids the problem of the robot continously entering and exiting the corridor when rotating) and if so, set the variable *center_reached* as true.
-- Check if it is not inside the corridor and *center_reached* is true.
-- If both match, the other robot has traversed a corridor.
+- Check if it has reached the center of the corridor (avoids the problem of the robot continously entering and exiting the corridor when rotating) and it is not inside the corridor.
+
+To decide when to resume navigation:
+- Check if the other robot traversed the corridor
+- Check if the other robot's path still passes through the corridor (if other robot has replanned outside the corridor, the robot can proceed).
+- Check if the goal of the other robot is close to its current position (other robot may never exit the corridor cause its goal is inside it).
+- If any match, the navigation can resume.
 
 ## Implementation notes
 

@@ -27,12 +27,12 @@
   <!-- Narrow Corridors x,y -->
   <arg name="narrow_corridors_husky1_x" value="-8.0"/>
   <arg name="narrow_corridors_husky1_y" value="8.0"/>
-  <arg name="narrow_corridors_husky1_yaw" value="1.5707"/>
+  <arg name="narrow_corridors_husky1_yaw" value="0.0"/>
 
 
   <arg name="narrow_corridors_husky2_x" value="7.0"/>
   <arg name="narrow_corridors_husky2_y" value="8.0"/>
-  <arg name="narrow_corridors_husky2_yaw" value="-1.5707"/>
+  <arg name="narrow_corridors_husky2_yaw" value="3.1415"/>
   <!---->
 
   <arg name="h1_base_local_planner_package" default="simple_mpc_local_planner"/>

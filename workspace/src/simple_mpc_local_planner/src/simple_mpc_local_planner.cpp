@@ -67,8 +67,9 @@ namespace simple_mpc_local_planner {
     //priority
     priority_ = nh.param("priority_level", 0);
 
-    //inflation amount
-    corridor_inflation_amount_ = nh.param("corridor_inflation_amount", 1.0);
+    //inflation amounts
+    corridor_inflation_amount_ = nh.param("inflation_scaling_factor", 1.2);
+    corridor2_inflation_amount_ = nh.param("inflation_scaling_factor2", 1.4);
 
     //distance from two consecutive points in global plans
     consecutive_points_dist_ = nh.param("consecutive_points_dist", 1.0);
@@ -241,6 +242,21 @@ namespace simple_mpc_local_planner {
     return false;    
   }
 
+  bool SimpleMPCLocalPlanner::isCloseToGoal(geometry_msgs::Point goal, geometry_msgs::PoseWithCovarianceStamped pose_stamped) {
+    double radius = 0.5;
+    geometry_msgs::Polygon goal_area;
+
+    for (int i=0; i<4; i++) {
+      geometry_msgs::Point32 p;
+      p.x = goal.x + radius*(i<2?1:-1);
+      p.y = goal.y + radius*(i==0||i==3?-1:1);
+
+      goal_area.points.push_back(p);
+    }
+
+    return SimpleMPCLocalPlanner::isPointInCorridor(pose_stamped.pose.pose.position, goal_area);
+  }
+
   geometry_msgs::Point SimpleMPCLocalPlanner::getCorridorCentroid(geometry_msgs::Polygon corridor) {
     geometry_msgs::Point centroid;
     
@@ -259,13 +275,14 @@ namespace simple_mpc_local_planner {
 
   geometry_msgs::Polygon SimpleMPCLocalPlanner::inflateCorridor(geometry_msgs::Polygon corridor, double amount) {
     geometry_msgs::Polygon inflated_corridor;
+    geometry_msgs::Point centroid = SimpleMPCLocalPlanner::getCorridorCentroid(corridor);
     
     for (geometry_msgs::Point32 vertex : corridor.points) {
-      double angle = std::atan2(vertex.y, vertex.x);
+      //double angle = std::atan2(vertex.y, vertex.x);
       
       geometry_msgs::Point32 new_point;
-      new_point.x = vertex.x + amount * std::cos(angle);
-      new_point.y = vertex.y + amount * std::sin(angle);
+      new_point.x = (vertex.x - centroid.x) * amount + centroid.x;
+      new_point.y = (vertex.y - centroid.y) * amount + centroid.y;
 
       inflated_corridor.points.push_back(new_point);
     }
@@ -412,11 +429,11 @@ namespace simple_mpc_local_planner {
 
   bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
     //My code
-    if (current_corridor_idx_ != -1 && priority_ > 0) { //my path passes through a corridor if such value is not -1
+    if (current_corridor_idx_ != -1 && priority_ > 0) { //my path passes through a corridor and low priority
 
       geometry_msgs::Polygon corridor = corridors_[current_corridor_idx_];
       geometry_msgs::Polygon inflated_corridor = inflateCorridor(corridor, corridor_inflation_amount_);
-      geometry_msgs::Polygon inflated_corridor2 = inflateCorridor(corridor, corridor_inflation_amount_+2.0);
+      geometry_msgs::Polygon inflated_corridor2 = inflateCorridor(corridor, corridor2_inflation_amount_);
 
       //Publish corridors for visualization
       geometry_msgs::PolygonStamped pub_poly;
@@ -434,7 +451,8 @@ namespace simple_mpc_local_planner {
 
       //Check if any other path passes through corridor
       bool is_in_corridor = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, corridor, global_costmap_resolution_, consecutive_points_dist_);
-
+      bool is_close_to_goal = global_plan_.poses.size() > 0 ? SimpleMPCLocalPlanner::isCloseToGoal(global_plan_.poses[global_plan_.poses.size()-1].pose.position, amcl_pose_) : false;
+      
       if (is_in_corridor && isCorridorInRange(inflated_corridor)) {
         ROS_WARN_ONCE("Corridor in range while other robot plans on traversing it: stop and wait");
         stop_ = true;
@@ -452,7 +470,7 @@ namespace simple_mpc_local_planner {
 
         //ROS_WARN("%f, %f, %d", amcl_pose_.pose.pose.position.x, amcl_pose_.pose.pose.position.y, isPointInCorridor(amcl_pose_.pose.pose.position, inflated_corridor2));
 
-        if (exited_corridor_ || !is_in_corridor) {
+        if (exited_corridor_ || !is_in_corridor || is_close_to_goal) { //continue as DWA
           ROS_INFO_ONCE("Other robot has exited corridor: continue");
           
           //Reset path

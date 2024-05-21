@@ -106,6 +106,8 @@ namespace simple_mpc_local_planner {
       static geometry_msgs::Polygon inflateCorridor(geometry_msgs::Polygon corridor, double amount);
 
       static geometry_msgs::Point getCorridorCentroid(geometry_msgs::Polygon corridor);
+
+      static bool isCloseToGoal(geometry_msgs::Point goal, geometry_msgs::PoseWithCovarianceStamped pose_stamped);
       //
 
       tf2_ros::Buffer* tf_; ///< @brief Used for transforming point clouds
@@ -135,6 +137,7 @@ namespace simple_mpc_local_planner {
       bool stop_ = false;
       bool entered_corridor_ = false;
       double corridor_inflation_amount_;
+      double corridor2_inflation_amount_;
       double global_costmap_resolution_;
       ros::Publisher corridor_pub_; //visualization purpose
       ros::Publisher inflated_corridor_pub_; //visualization purpose

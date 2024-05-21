@@ -45,5 +45,6 @@ This package depends on:
 ## Deatiled information
 
 For more information:
-    - regarding *husky_dynamic_navigation* package, click [here](workspace/src/husky_dynamic_navigation/README.md).
-    - regarding *simple_mpc_local_planner* pacakge, click [here](workspace/src/simple_mpc_local_planner/README.md).
+
+- regarding *husky_dynamic_navigation* package, click [here](workspace/src/husky_dynamic_navigation/README.md).
+- regarding *simple_mpc_local_planner* pacakge, click [here](workspace/src/simple_mpc_local_planner/README.md).
