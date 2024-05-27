@@ -451,7 +451,7 @@ namespace simple_mpc_local_planner {
 
       //Check if any other path passes through corridor
       bool is_in_corridor = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, corridor, global_costmap_resolution_, consecutive_points_dist_);
-      bool is_in_corridor2 = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, inflated_corridor2, global_costmap_resolution_, consecutive_points_dist_);
+      bool is_in_corridor2 = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, inflated_corridor, global_costmap_resolution_, consecutive_points_dist_);
       bool is_close_to_goal = global_plan_.poses.size() > 0 ? SimpleMPCLocalPlanner::isCloseToGoal(global_plan_.poses[global_plan_.poses.size()-1].pose.position, amcl_pose_) : false;
       
       if (is_in_corridor && isCorridorInRange(inflated_corridor)) {
