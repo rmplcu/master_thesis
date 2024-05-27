@@ -30,6 +30,12 @@ It is advisable to use this following command to run the project:
 
 The default local planner used is **SimpleMPCLocalPlanner**, a custom local planner studied for the narrow corridor environment. It may not work properly if the parameters in the files [SimpleMPCLocalPlanner_husky1.yaml](workspace/src/husky_dynamic_navigation/config/SimpleMPCLocalPlanner_husky1.yaml) and [SimpleMPCLocalPlanner_husky2.yaml](workspace/src/husky_dynamic_navigation/config/SimpleMPCLocalPlanner_husky2.yaml) are not setup correctly and the launch file is used with different parameters.
 
+Once the launch file has started correctly, in another terminal you can run:
+
+```rosrun husky_dynamic_navigation mpc_navigation_opposite_directions.py```
+
+It will make each robot move to the starting position of the other one (passing through the narrow corridor if run in combination with the command described previously).
+
 ## Dependencies
 
 This package depends on:
