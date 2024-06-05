@@ -14,9 +14,11 @@
   <!-- realsense and side_lasers can be enabled at the same time  -->
   <!-- side_lasers and laser_front_back cannot be enabled at the same time -->
   <arg name="laser_front_back" default="0"/>
-  <arg name="side_lasers" default="1"/>
+  <arg name="side_lasers" default="0"/>
   <arg name="realsense_enabled" default="1"/>
 
+  <arg name="min_height" default="0.0"/>
+  <arg name="max_height" default="1.0"/>
   <arg name="laser_range_max" default="13"/>
   <arg name="laser_range_min" default="0.1"/>
 
@@ -34,6 +36,8 @@
     <param name="target_frame" value="$(arg husky_num)_tf/base_link"/>
     <param name="range_max" value="$(arg laser_range_max)"/>
     <param name="range_min" value="$(arg laser_range_min)"/>
+    <param name="min_height" value="$(arg min_height)"/>
+    <param name="max_height" value="$(arg max_height)"/>
 
     <remap from="scan" to="$(arg robot_namespace)/3d_scan" if="$(arg side_lasers)"/>
     <remap from="scan" to="$(arg robot_namespace)/scan" unless="$(arg side_lasers)"/>

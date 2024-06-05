@@ -5,6 +5,9 @@ husky_viz
 husky_navigation
 mpc_local_planner (mpc_local_planner_msg, mpc_local_planner_examples)
 pointcloud_to_laserscan
+depthimage_to_laserscan
 ira_laser_tools
 gazebo_ros_2DMap_plugin
 spatio_temporal_voxel_layer
+husky_robot
+realsense-ros
