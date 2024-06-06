@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Sensing1/LaserScan1
       Splitter Ratio: 0.49492400884628296
     Tree Height: 459
   - Class: rviz/Selection
@@ -222,12 +221,12 @@ Visualization Manager:
             y_scale: 0.4000000059604645
             z_scale: 0.4000000059604645
           Class: rviz_imu_plugin/Imu
-          Enabled: true
+          Enabled: false
           Name: Imu
           Queue Size: 10
           Topic: /imu/data
           Unreliable: false
-          Value: true
+          Value: false
           fixed_frame_orientation: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -336,7 +335,7 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /move_base/DWAPlannerROS/local_plan
+          Topic: /move_base/SimpleMPCLocalPlanner/local_plan
           Unreliable: false
           Value: true
       Enabled: true
@@ -353,6 +352,37 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: true
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 143; 89; 2
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /move_base/SimpleMPCLocalPlanner/current_corridor
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 193; 125; 17
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /move_base/SimpleMPCLocalPlanner/inflated_corridor
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Class: rviz/Polygon
+          Color: 233; 185; 110
+          Enabled: true
+          Name: Polygon
+          Queue Size: 10
+          Topic: /move_base/SimpleMPCLocalPlanner/inflated_corridor2
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: Corridors
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -395,9 +425,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0047996044158936
+      Pitch: 0.7797966599464417
       Target Frame: <Fixed Frame>
-      Yaw: 4.012235641479492
+      Yaw: 3.6672298908233643
     Saved: ~
 Window Geometry:
   Displays:

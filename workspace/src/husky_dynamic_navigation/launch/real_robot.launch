@@ -46,8 +46,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- Differential controller parameters and basic localization -->
   <include file="$(find husky_dynamic_navigation)/launch/real_robot_control.launch" />
 
-  <!--Teleop -->
+  <!-- Teleop 
   <include file="$(find husky_control)/launch/teleop.launch" />
+  -->
 
   <!-- Realsense camera -->
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
@@ -58,8 +59,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- PointCloud to LaserScan -->
   <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
     <param name="range_min" value="0.01"/>
-    <param name="range_max" value="3.0"/>
-
+    <param name="range_max" value="5.0"/>
+    <param name="angle_increment" value="0.004"/>
     <param name="target_frame" value="base_link"/>
     <param name="min_height" value="0.2"/>
     <param name="max_height" value="0.5"/>

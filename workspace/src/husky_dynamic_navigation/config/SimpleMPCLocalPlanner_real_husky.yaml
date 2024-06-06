@@ -1,0 +1,59 @@
+SimpleMPCLocalPlanner: #DwaLocalPlanner
+  frame_id: odom
+  odom_topic: husky_velocity_controller/odom
+
+  # Robot configuration parameters  
+  acc_lim_x: 3.0
+  acc_lim_y: 0
+  acc_lim_th: 6.0
+
+  max_vel_x: 1.0
+  min_vel_x: -0.1
+  max_vel_y: 0
+  min_vel_y: 0
+
+  max_vel_trans: 0.55
+  min_vel_trans: 0.2
+  max_vel_rot: 2.0
+  min_vel_rot: 0.0
+
+  # Goal Tolerance Parameters
+  yaw_goal_tolerance: 3.14
+  xy_goal_tolerance: 0.5
+  latch_xy_goal_tolerance: false
+
+  # # Forward Simulation Parameters
+  sim_time: 4.0
+  sim_granularity: 0.025
+  vx_samples: 20
+  # vy_samples: 0
+  vtheta_samples: 40
+  penalize_negative_x: true
+
+  # # Trajectory scoring parameters
+  path_distance_bias: 32.0 # The weighting for how much the controller should stay close to the path it was given
+  goal_distance_bias: 32.0 # The weighting for how much the controller should attempt to reach its local goal, also controls speed
+  occdist_scale: 0.8 # The weighting for how much the controller should attempt to avoid obstacles
+  # forward_point_distance: 0.325 # The distance from the center point of the robot to place an additional scoring point, in meters
+  #stop_time_buffer: 0.1  # The amount of time that the robot must stop before a collision in order for a trajectory to be considered valid in seconds
+  # scaling_speed: 0.25 # The absolute value of the veolicty at which to start scaling the robot's footprint, in m/s
+  # max_scaling_factor: 0.2 # The maximum factor to scale the robot's footprint by
+
+  # # Oscillation Prevention Parameters
+  # oscillation_reset_dist: 0.25 #How far the robot must travel in meters before oscillation flags are reset (double, default: 0.05)
+
+  # My params
+  priority_level: 1
+  corridor1: [[1.5, -1.2], [2.3, -2.6], [4.8, -1.2], [4.0, 0.2]] # Oriented counterclockwise!
+  
+  inflation_scaling_factor: 1.25
+  inflation_scaling_factor2: 1.6
+
+  tf_prefix: ""
+  consecutive_points_dist: 1.5 # next point will be Xm from current point
+
+  robot1:
+    name: "husky1"
+    global_plan_topic: "/husky1/move_base/NavfnROS/plan"
+    amcl_topic: "/husky1/amcl_pose"
+  # My params end #

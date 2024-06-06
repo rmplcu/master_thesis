@@ -82,7 +82,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <param name="base_local_planner" value="simple_mpc_local_planner/SimpleMPCLocalPlanner"/>  
     
     <rosparam file="$(find husky_dynamic_navigation)/config/planner.yaml" command="load"/>
-    <rosparam file="$(find husky_dynamic_navigation)/config/SimpleMPCLocalPlanner_husky1.yaml" command="load"/>
+    <rosparam file="$(find husky_dynamic_navigation)/config/SimpleMPCLocalPlanner_real_husky.yaml" command="load"/>
 
     <!-- observation sources located in costmap_common.yaml -->
     <rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" />
@@ -90,21 +90,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     <!-- local costmap -->
     <rosparam file="$(find husky_navigation)/config/costmap_local.yaml" command="load" ns="local_costmap" />
-    <param name="local_costmap/width" value="4.0"/>
-    <param name="local_costmap/height" value="4.0"/>
+    <param name="local_costmap/width" value="5.0"/>
+    <param name="local_costmap/height" value="5.0"/>
     <param name="local_costmap/global_frame" value="odom"/>
     <param name="local_costmap/robot_base_frame" value="base_link"/>
     <param name="local_costmap/obstacles_laser/laser/topic" value="front/scan"/>
     <param name="local_costmap/inflation/inflation_radius" value="0.8"/>
-    <param name="local_costmap/inflation/cost_scaling_factor" value="1.0"/>
+    <param name="local_costmap/inflation/cost_scaling_factor" value="5.0"/>
+    <!--
+
+    <param name="local_costmap/inflation/inflation_radius" value="1.5"/>
+    <param name="local_costmap/inflation/cost_scaling_factor" value="1.58"/>
+    -->
 
     <!-- global costmap params -->
     <param name="global_costmap/global_frame" value="map"/>
     <param name="global_costmap/robot_base_frame" value="base_link"/>
     <param name="global_costmap/obstacles_laser/laser/topic" value="front/scan"/>
+    <!--
 
-    <param name="SimpleMPCLocalPlanner/global_frame_id" value="odom"/>
-    <param name="SimpleMPCLocalPlanner/odom_topic" value="husky_velocity_controller/odom"/> <!-- not odometry/filtered -->
+    <param name="global_costmap/inflation/inflation_radius" value="1.75"/>
+    <param name="global_costmap/inflation/cost_scaling_factor" value="2.58"/>
+    -->
 
     <!-- static global costmap, static map provides size -->
     <rosparam file="$(find husky_navigation)/config/costmap_global_static.yaml" command="load" ns="global_costmap"/>
