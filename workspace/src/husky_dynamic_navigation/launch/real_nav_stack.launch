@@ -1,0 +1,117 @@
+<launch>
+  <arg name="map_file" default="$(find husky_dynamic_navigation)/maps/real_corridor.yaml"/>
+	<arg name="robot_name" /> 
+	<param name="tf_prefix" value="$(arg robot_name)_tf"/>
+  
+	<!-- Map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+	
+	
+	<group>
+		<!--- AMCL -->
+		<node pkg="amcl" type="amcl" name="$(arg robot_name)_amcl">
+			<param name="use_map_topic" value="true"/>
+	
+			<!-- Publish scans from best pose at a max of 10 Hz -->
+			<param name="odom_model_type" value="diff"/>
+			<param name="odom_alpha5" value="0.1"/>
+			<param name="gui_publish_rate" value="10.0"/>
+			<param name="laser_max_beams" value="60"/>
+			<param name="laser_max_range" value="12.0"/>
+			<param name="min_particles" value="500"/>
+			<param name="max_particles" value="2000"/>
+			<param name="kld_err" value="0.05"/>
+			<param name="kld_z" value="0.99"/>
+			<param name="odom_alpha1" value="0.2"/>
+			<param name="odom_alpha2" value="0.2"/>
+			<!-- translation std dev, m -->
+			<param name="odom_alpha3" value="0.2"/>
+			<param name="odom_alpha4" value="0.2"/>
+			<param name="laser_z_hit" value="0.5"/>
+			<param name="laser_z_short" value="0.05"/>
+			<param name="laser_z_max" value="0.05"/>
+			<param name="laser_z_rand" value="0.5"/>
+			<param name="laser_sigma_hit" value="0.2"/>
+			<param name="laser_lambda_short" value="0.1"/>
+			<param name="laser_model_type" value="likelihood_field"/>
+			<!-- <param name="laser_model_type" value="beam"/> -->
+			<param name="laser_likelihood_max_dist" value="2.0"/>
+			<param name="update_min_d" value="0.25"/>
+			<param name="update_min_a" value="0.2"/>
+			<param name="resample_interval" value="1"/>
+			<!-- Increase tolerance because the computer can get quite busy -->
+			<param name="transform_tolerance" value="1.0"/>
+			<param name="recovery_alpha_slow" value="0.0"/>
+			<param name="recovery_alpha_fast" value="0.0"/>
+	
+			<remap from="scan" to="/$(arg robot_name)/front/scan"/>
+			<remap from="initialpose" to="/$(arg robot_name)/initialpose"/> 
+			<remap from="amcl_pose" to="/$(arg robot_name)/amcl_pose"/>
+			<remap from="particlecloud" to="/$(arg robot_name)/particlecloud"/>
+
+			<param name="odom_frame_id" value="$(arg robot_name)_tf/odom"/>
+			<param name="base_frame_id" value="$(arg robot_name)_tf/base_link"/>
+			<param name="global_frame_id" value="map"/>
+
+			<param name="tf_broadcast" value="true"/>
+			
+		</node>
+
+	</group>
+
+	<group ns="/$(arg robot_name)">
+		<!-- Move Base -->
+		<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+	
+			<remap from="cmd_vel" to="/$(arg robot_name)/cmd_vel"/>
+			<remap from="odom" to="/$(arg robot_name)/odom"/>
+			<remap from="scan" to="/$(arg robot_name)/front/scan"/>
+			<remap from="particlecloud" to="/$(arg robot_name)/particlecloud"/>
+			<remap from="map" to="map"/>
+
+			<!-- Set planners -->
+			<param name="base_global_planner" value="navfn/NavfnROS"/>
+			<param name="base_local_planner" value="simple_mpc_local_planner/SimpleMPCLocalPlanner"/>  
+			
+			<!-- Config planners -->
+			<rosparam file="$(find husky_dynamic_navigation)/config/planner.yaml" command="load"/>
+			
+			<rosparam file="$(find husky_dynamic_navigation)/config/SimpleMPCLocalPlanner_real_husky.yaml" command="load"/>
+			<param name="SimpleMPCLocalPlanner/global_frame_id" value="$(arg robot_name)_tf/odom"/>
+			<param name="SimpleMPCLocalPlanner/odom_topic" value="/$(arg robot_name)/husky_velocity_controller/odom"/>
+
+			<!-- observation sources located in costmap_common.yaml -->
+			<rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+			<rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+
+			<!-- local costmap -->
+			<rosparam file="$(find husky_navigation)/config/costmap_local.yaml" command="load" ns="local_costmap" />
+			<param name="local_costmap/width" value="5.0"/>
+			<param name="local_costmap/height" value="5.0"/>
+			<param name="local_costmap/global_frame" value="$(arg robot_name)_tf/odom"/>
+			<param name="local_costmap/robot_base_frame" value="$(arg robot_name)_tf/base_link"/>
+			<param name="local_costmap/obstacles_laser/laser/topic" value="/$(arg robot_name)/front/scan"/>
+			<param name="local_costmap/inflation/inflation_radius" value="0.8"/>
+			<param name="local_costmap/inflation/cost_scaling_factor" value="5.0"/>
+			<!--
+
+			<param name="local_costmap/inflation/inflation_radius" value="1.5"/>
+			<param name="local_costmap/inflation/cost_scaling_factor" value="1.58"/>
+			-->
+
+			<!-- static global costmap, static map provides size -->
+			<rosparam file="$(find husky_navigation)/config/costmap_global_static.yaml" command="load" ns="global_costmap"/>
+		
+			<!-- global costmap params -->
+			<param name="global_costmap/global_frame" value="map"/>
+			<param name="global_costmap/robot_base_frame" value="$(arg robot_name)_tf/base_link"/>
+			<param name="global_costmap/obstacles_laser/laser/topic" value="/$(arg robot_name)/front/scan"/>
+			<!--
+
+			<param name="global_costmap/inflation/inflation_radius" value="1.75"/>
+			<param name="global_costmap/inflation/cost_scaling_factor" value="2.58"/>
+			-->
+
+		</node>
+	</group>
+</launch>

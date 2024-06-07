@@ -26,6 +26,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <launch>
+  <arg name="robot_name"/>
   <arg name="port" default="$(optenv HUSKY_PORT /dev/prolific)" />
 
   <!-- Husky harware driver -->
@@ -44,7 +45,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </node>
 
   <!-- Differential controller parameters and basic localization -->
-  <include file="$(find husky_dynamic_navigation)/launch/real_robot_control.launch" />
+  <include file="$(find husky_dynamic_navigation)/launch/real_robot_control.launch">
+    <arg name="robot_name" value="$(arg robot_name)"/>
+  </include>
 
   <!-- Teleop 
   <include file="$(find husky_control)/launch/teleop.launch" />
@@ -54,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="enable_pointcloud" value="true"/>
     <arg name="camera" value="camera_realsense"/>
+    <arg name="tf_prefix" value="$(arg robot_name)_tf/camera_realsense"/>
   </include>
 
   <!-- PointCloud to LaserScan -->
@@ -61,11 +65,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <param name="range_min" value="0.01"/>
     <param name="range_max" value="5.0"/>
     <param name="angle_increment" value="0.004"/>
-    <param name="target_frame" value="base_link"/>
+    <param name="target_frame" value="$(arg robot_name)_tf/base_link"/>
     <param name="min_height" value="0.2"/>
     <param name="max_height" value="0.5"/>
     
-    <remap from="scan" to="front/scan"/>
+    <remap from="scan" to="/$(arg robot_name)/front/scan"/>
     <remap from="cloud_in" to="camera_realsense/depth/color/points"/>
   </node>
 

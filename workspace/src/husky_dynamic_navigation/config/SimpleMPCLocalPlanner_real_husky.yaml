@@ -49,7 +49,7 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   inflation_scaling_factor: 1.25
   inflation_scaling_factor2: 1.6
 
-  tf_prefix: ""
+  tf_prefix: "husky2_tf"
   consecutive_points_dist: 1.5 # next point will be Xm from current point
 
   robot1:

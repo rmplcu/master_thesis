@@ -3,7 +3,8 @@
 
   <!-- <arg name="multimaster" default="$(optenv ROBOT_MULTIMASTER false)"/> -->
   <arg name="simulation" default="$(optenv ROBOT_SIMULATION false)"/>
-  <arg name="robot_namespace" default="$(optenv ROBOT_NAMESPACE robot)"/>
+  <arg name="robot_name"/>
+  <arg name="robot_namespace" value="/$(arg robot_name)"/>
   <arg name="enable_ekf" default="$(optenv ENABLE_EKF true)"/>
 
   <arg name="config_extras"
@@ -18,10 +19,10 @@
 
   <!-- Load robot description -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find husky_dynamic_navigation)/urdf/real_husky.urdf.xacro'
-    robot_namespace:=$(arg robot_namespace)" />
+    robot_namespace:=$(arg robot_namespace) realsense_enabled:=1" />
 
   <!-- Load controller configuration -->
-  <rosparam command="load" file="$(find husky_control)/config/control.yaml" />
+  <rosparam command="load" file="$(find husky_dynamic_navigation)/config/control_$(arg robot_name).yaml" />
 
   <!-- Spawn controllers -->
   <node name="base_controller_spawner" pkg="controller_manager" type="spawner"
@@ -30,21 +31,25 @@
         $(optenv HUSKY_WHEEL_MULTIPLIER 1.0)
   </rosparam>
 
+  <remap from="odom" to="/$(arg robot_name)/husky_velocity_controller/odom"/>
+  <remap from="cmd_vel" to="/$(arg robot_name)/cmd_vel"/>
+
+
   <!-- Start EKF for localization -->
   <group if="$(arg enable_ekf)" >
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
-      <rosparam command="load" file="$(find husky_control)/config/localization.yaml" />
+      <rosparam command="load" file="$(find husky_dynamic_navigation)/config/localization_$(arg robot_name).yaml" />
     </node>
   </group>
 
   <node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server" output="screen">
-    <param name="link_name" value="base_link" />
+    <param name="link_name" value="$(arg robot_name)_tf/base_link" />
   </node>
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <node pkg="twist_mux" type="twist_mux" name="twist_mux">
-    <rosparam command="load" file="$(find husky_control)/config/twist_mux.yaml" />
+    <rosparam command="load" file="$(find husky_dynamic_navigation)/config/twist_mux_$(arg robot_name).yaml" />
     <remap from="cmd_vel_out" to="husky_velocity_controller/cmd_vel"/>
   </node>
 
