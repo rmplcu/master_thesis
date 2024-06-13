@@ -169,6 +169,7 @@ catkin_install_python(PROGRAMS
   scripts/mpc_navigation_opposite_directions.py
   scripts/mpc_navigation_diagonal.py
   scripts/mpc_navigation_moving_obstacle.py
+  scripts/fake_laser.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

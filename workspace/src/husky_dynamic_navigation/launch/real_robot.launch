@@ -50,8 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </include>
 
   <!-- Teleop 
-  <include file="$(find husky_control)/launch/teleop.launch" />
   -->
+  <include file="$(find husky_control)/launch/teleop.launch" />
 
   <!-- Realsense camera -->
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">

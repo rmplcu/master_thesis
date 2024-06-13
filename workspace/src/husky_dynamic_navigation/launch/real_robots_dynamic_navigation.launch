@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <arg name="robot_name" value="husky2"/>
 
   <!-- RVIZ -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky_dynamic_navigation)/config/real_robot.rviz" output="screen"/>
+  <node name="$(arg robot_name)_rviz" pkg="rviz" type="rviz" args="-d $(find husky_dynamic_navigation)/config/real_robot.rviz" output="screen"/>
   
   <!-- Start Husky -->
   <group ns="/$(arg robot_name)">
