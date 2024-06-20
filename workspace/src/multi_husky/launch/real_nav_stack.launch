@@ -1,9 +1,6 @@
 <launch>
-  	<arg name="map_file" default="$(find husky_dynamic_navigation)/maps/real_corridor_map.yaml"/>
-	<arg name="robot_name" />
-	<arg name="initial_pose_x" default="1.455"/>
-	<arg name="initial_pose_y" default="-0.941"/>
-	<arg name="initial_pose_a" default="1.438"/> <!-- yaw -->
+  <arg name="map_file" default="$(find multi_husky)/maps/real_corridor_map.yaml"/>
+	<arg name="robot_name" /> 
 	<param name="tf_prefix" value="$(arg robot_name)_tf"/>
   
 	<!-- Map server -->
@@ -56,10 +53,6 @@
 			<param name="base_frame_id" value="$(arg robot_name)_tf/base_link"/>
 			<param name="global_frame_id" value="map"/>
 
-			<param name="initial_pose_x" value="$(arg initial_pose_x)"/>
-			<param name="initial_pose_y" value="$(arg initial_pose_y)"/>
-			<param name="initial_pose_a" value="$(arg initial_pose_a)"/> <!-- yaw -->
-
 			<param name="tf_broadcast" value="true"/>
 			
 		</node>
@@ -78,18 +71,22 @@
 
 			<!-- Set planners -->
 			<param name="base_global_planner" value="navfn/NavfnROS"/>
-			<param name="base_local_planner" value="simple_mpc_local_planner/SimpleMPCLocalPlanner"/>  
+			<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>  
+			<!--
+			-->
 			
 			<!-- Config planners -->
-			<rosparam file="$(find husky_dynamic_navigation)/config/planner.yaml" command="load"/>
+			<rosparam file="$(find multi_husky)/config/planner.yaml" command="load"/>
 			
-			<rosparam file="$(find husky_dynamic_navigation)/config/SimpleMPCLocalPlanner_real_husky.yaml" command="load"/>
-			<param name="SimpleMPCLocalPlanner/global_frame_id" value="$(arg robot_name)_tf/odom"/>
-			<param name="SimpleMPCLocalPlanner/odom_topic" value="/$(arg robot_name)/husky_velocity_controller/odom"/>
+			<!--
+			<rosparam file="$(find multi_husky)/config/SimpleMPCLocalPlanner_real_husky.yaml" command="load"/>
+			-->
+			<param name="DWAPlannerROS/global_frame_id" value="$(arg robot_name)_tf/odom"/>
+			<param name="DWAPlannerROS/odom_topic" value="/$(arg robot_name)/husky_velocity_controller/odom"/>
 
 			<!-- observation sources located in costmap_common.yaml -->
-			<rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" />
-			<rosparam file="$(find husky_dynamic_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+			<rosparam file="$(find multi_husky)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+			<rosparam file="$(find multi_husky)/config/costmap_common.yaml" command="load" ns="local_costmap" />
 
 			<!-- local costmap -->
 			<rosparam file="$(find husky_navigation)/config/costmap_local.yaml" command="load" ns="local_costmap" />
@@ -98,8 +95,13 @@
 			<param name="local_costmap/global_frame" value="$(arg robot_name)_tf/odom"/>
 			<param name="local_costmap/robot_base_frame" value="$(arg robot_name)_tf/base_link"/>
 			<param name="local_costmap/obstacles_laser/laser/topic" value="/$(arg robot_name)/front/scan"/>
-			<param name="local_costmap/inflation/inflation_radius" value="0.5"/>
-			<param name="local_costmap/inflation/cost_scaling_factor" value="3.6"/>
+			<param name="local_costmap/inflation/inflation_radius" value="0.8"/>
+			<param name="local_costmap/inflation/cost_scaling_factor" value="5.0"/>
+			<!--
+
+			<param name="local_costmap/inflation/inflation_radius" value="1.5"/>
+			<param name="local_costmap/inflation/cost_scaling_factor" value="1.58"/>
+			-->
 
 			<!-- static global costmap, static map provides size -->
 			<rosparam file="$(find husky_navigation)/config/costmap_global_static.yaml" command="load" ns="global_costmap"/>
@@ -108,6 +110,11 @@
 			<param name="global_costmap/global_frame" value="map"/>
 			<param name="global_costmap/robot_base_frame" value="$(arg robot_name)_tf/base_link"/>
 			<param name="global_costmap/obstacles_laser/laser/topic" value="/$(arg robot_name)/front/scan"/>
+			<!--
+
+			<param name="global_costmap/inflation/inflation_radius" value="1.75"/>
+			<param name="global_costmap/inflation/cost_scaling_factor" value="2.58"/>
+			-->
 
 		</node>
 	</group>

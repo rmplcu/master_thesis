@@ -33,9 +33,9 @@ obstacles_laser:
     mapping_mode:          false  # default off, saves map not for navigation
     map_save_duration:     60 
     observation_sources: laser
-    laser: {data_type: LaserScan, clearing: true, marking: true, topic: front/scan, inf_is_valid: true} #topic is "scan" for simulation 
+    laser: {data_type: LaserScan, clearing: true, marking: true, topic: font/scan, inf_is_valid: true}
 
 inflation:
-    inflation_radius: 0.8
+    inflation_radius: 0.80
     cost_scaling_factor: 1.8
 

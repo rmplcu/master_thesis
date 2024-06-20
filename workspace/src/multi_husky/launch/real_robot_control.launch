@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- <arg name="multimaster" default="$(optenv ROBOT_MULTIMASTER false)"/> -->
+  <arg name="simulation" default="$(optenv ROBOT_SIMULATION false)"/>
+  <arg name="robot_name"/>
+  <arg name="robot_namespace" value="/$(arg robot_name)"/>
+  <arg name="enable_ekf" default="$(optenv ENABLE_EKF true)"/>
+
+  <arg name="config_extras"
+       default="$(eval optenv('HUSKY_CONFIG_EXTRAS', find('husky_control') + '/config/empty.yaml'))"/>
+
+  <!-- <include file="$(find multimaster_launch)/launch/multimaster_robot.launch" if="$(arg multimaster)">
+    <arg name="gazebo_interface" value="$(find husky_control)/config/gazebo_interface.yaml" />
+    <arg name="public_interface" value="$(find husky_control)/config/public_interface.yaml" />
+    <arg name="robot_namespace" value="$(arg robot_namespace)"/>
+    <arg name="simulation" value="$(arg simulation)"/>
+  </include> -->
+
+  <!-- Load robot description -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find multi_husky)/urdf/real_husky.urdf.xacro'
+    robot_namespace:=$(arg robot_namespace) realsense_enabled:=1" />
+
+  <!-- Load controller configuration -->
+  <rosparam command="load" file="$(find multi_husky)/config/control_$(arg robot_name).yaml" />
+
+  <!-- Spawn controllers -->
+  <node name="base_controller_spawner" pkg="controller_manager" type="spawner"
+        args="husky_joint_publisher husky_velocity_controller"/>
+  <rosparam param="wheel_radius_multiplier" ns="husky_velocity_controller" subst_value="True">
+        $(optenv HUSKY_WHEEL_MULTIPLIER 1.0)
+  </rosparam>
+
+  <remap from="odom" to="/$(arg robot_name)/husky_velocity_controller/odom"/>
+  <remap from="cmd_vel" to="/$(arg robot_name)/cmd_vel"/>
+
+
+  <!-- Start EKF for localization -->
+  <group if="$(arg enable_ekf)" >
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
+      <rosparam command="load" file="$(find multi_husky)/config/localization_$(arg robot_name).yaml" />
+    </node>
+  </group>
+
+  <node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server" output="screen">
+    <param name="link_name" value="$(arg robot_name)_tf/base_link" />
+  </node>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <node pkg="twist_mux" type="twist_mux" name="twist_mux">
+    <rosparam command="load" file="$(find multi_husky)/config/twist_mux_$(arg robot_name).yaml" />
+    <remap from="cmd_vel_out" to="husky_velocity_controller/cmd_vel"/>
+  </node>
+
+  <!-- Override the default control parameters, see config/empty.yaml for default. -->
+  <rosparam command="load" file="$(arg config_extras)" subst_value="true" />
+
+</launch>
