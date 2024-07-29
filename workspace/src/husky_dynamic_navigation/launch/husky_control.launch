@@ -14,7 +14,7 @@
   <!-- realsense and side_lasers can be enabled at the same time  -->
   <!-- side_lasers and laser_front_back cannot be enabled at the same time -->
   <arg name="laser_front_back" default="0"/>
-  <arg name="side_lasers" default="0"/>
+  <arg name="side_lasers" default="1"/>
   <arg name="realsense_enabled" default="1"/>
 
   <arg name="min_height" default="0.0"/>

@@ -28,9 +28,9 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   penalize_negative_x: true
 
   # # Trajectory scoring parameters
-  path_distance_bias: 32.0 # The weighting for how much the controller should stay close to the path it was given
-  goal_distance_bias: 16.0 # The weighting for how much the controller should attempt to reach its local goal, also controls speed
-  occdist_scale: 0.8 # The weighting for how much the controller should attempt to avoid obstacles
+  path_distance_bias: 1.0 # The weighting for how much the controller should stay close to the path it was given
+  goal_distance_bias: 0.5 # The weighting for how much the controller should attempt to reach its local goal, also controls speed
+  occdist_scale: 0.025 # The weighting for how much the controller should attempt to avoid obstacles
   # forward_point_distance: 0.325 # The distance from the center point of the robot to place an additional scoring point, in meters
   #stop_time_buffer: 0.1  # The amount of time that the robot must stop before a collision in order for a trajectory to be considered valid in seconds
   # scaling_speed: 0.25 # The absolute value of the veolicty at which to start scaling the robot's footprint, in m/s

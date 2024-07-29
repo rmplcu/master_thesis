@@ -8,6 +8,7 @@ credentials.txt
 /mpc_local_planner/
 /workspace/src/mpc_local_planner/
 /workspace/src/mpc_ros/
+/workspace/src/husky_robot/
 /workspace/src/mpc_local_planner_msgs/
 /workspace/src/gazebo_ros_2Dmap_plugin/
 /workspace/src/realsense-ros/
