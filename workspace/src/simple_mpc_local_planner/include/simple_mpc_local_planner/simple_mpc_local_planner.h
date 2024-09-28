@@ -19,6 +19,20 @@
 #include <simple_mpc_local_planner/dwa_planner.h>
 
 namespace simple_mpc_local_planner {
+  class Robot {
+    public:
+      int priority;
+      bool path_in_corridor = false;
+      bool in_corridor = false;
+      bool in_corridor2 = false;
+      bool close_to_goal = false;
+      bool exited_corridor = false;
+      bool entered_corridor = false;
+      std::string name;
+
+      Robot();
+  };
+  
   /**
    * @class SimpleMPCLocalPlanner
    * @brief SimpleMPC implements BaseLocalPlanner interface and can be used as a plugin for move_base.
@@ -129,27 +143,33 @@ namespace simple_mpc_local_planner {
       base_local_planner::LatchedStopRotateController latchedStopRotateController_;
 
       // -- My params --
-      int priority_; //Low value equals higher priority
+      
       int consecutive_points_dist_;
       int current_corridor_idx_ = -1;
       bool successful_initialization_ = false;
-      bool exited_corridor_ = false;
       bool stop_ = false;
-      bool entered_corridor_ = false;
       double corridor_inflation_amount_;
-      double corridor2_inflation_amount_;
+      //double corridor2_inflation_amount_;
       double global_costmap_resolution_;
       ros::Publisher corridor_pub_; //visualization purpose
       ros::Publisher inflated_corridor_pub_; //visualization purpose
       ros::Publisher inflated_corridor2_pub_; //visualization purpose
       std::string tf_prefix_;
       geometry_msgs::Polygon centroid_square_;
+      geometry_msgs::Point centroid;
       std::vector<ros::Subscriber> subscribers_;
       std::vector<geometry_msgs::Polygon> corridors_; 
       //std::vector<geometry_msgs::Point> inflated_corridor_vertices_;
-      nav_msgs::Path global_plan_;
-      geometry_msgs::PoseWithCovarianceStamped amcl_pose_;
+      std::map<std::string, std_msgs::Header> arrival_times_;
+      std::map<std::string, nav_msgs::Path> global_plans_;
+      std::map<std::string, geometry_msgs::PoseWithCovarianceStamped> amcl_poses_;
+      std::vector<Robot> robots;
+      Robot this_robot;
       std::vector<geometry_msgs::PoseStamped> my_local_plan_;
+      ros::Publisher corridor_arrival_time_pub_;
+      std_msgs::Header arrival_ts_;
+      geometry_msgs::TransformStamped odom_to_map;
+
       // --           --
       
       bool initialized_;

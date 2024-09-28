@@ -25,7 +25,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 -->
 <launch>
 
-  <arg name="base_global_planner" default="navfn/NavfnROS"/>
+  <arg name="base_global_planner" default="global_planner/GlobalPlanner"/>
   <arg name="base_local_planner" default="MpcLocalPlannerROS"/>
   <arg name="base_local_planner_package" default="mpc_local_planner"/>
  
@@ -35,7 +35,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
   <arg name="tf_prefix" default="$(arg robot_name)_tf"/>
   <arg name="scan_topic" default="/husky1/scan"/>
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> launch-prefix="xterm -e gdb --args">
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>
     <remap from="map" to="map"/>

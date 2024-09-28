@@ -16,7 +16,13 @@
 PLUGINLIB_EXPORT_CLASS(simple_mpc_local_planner::SimpleMPCLocalPlanner, nav_core::BaseLocalPlanner)
 
 namespace simple_mpc_local_planner {
+  /**
+   * Robot helper class
+   * 
+  */
+  Robot::Robot() {}
 
+  // end robot class
   void SimpleMPCLocalPlanner::reconfigureCB(SimpleMPCLocalPlannerConfig &config, uint32_t level) {
       if (setup_ && config.restore_defaults) {
         config = default_config_;
@@ -58,6 +64,10 @@ namespace simple_mpc_local_planner {
   bool SimpleMPCLocalPlanner::initMyParams(ros::NodeHandle nh) {
     //tf_prefix
     tf_prefix_ = nh.param("tf_prefix", std::string("/"));
+    
+    //odom to map transform
+    odom_to_map = (*tf_).lookupTransform("map", tf_prefix_ + "/odom", ros::Time(0), ros::Duration(3.0));
+
 
     //global costmap resolution
     std::string resolution_str;
@@ -65,11 +75,11 @@ namespace simple_mpc_local_planner {
     global_costmap_resolution_ = nh.param(resolution_str, 0.05);
 
     //priority
-    priority_ = nh.param("priority_level", 0);
+    this_robot.priority = nh.param("priority_level", 0);
 
     //inflation amounts
     corridor_inflation_amount_ = nh.param("inflation_scaling_factor", 1.2);
-    corridor2_inflation_amount_ = nh.param("inflation_scaling_factor2", 1.4);
+    //corridor2_inflation_amount_ = nh.param("inflation_scaling_factor2", 1.4);
 
     //distance from two consecutive points in global plans
     consecutive_points_dist_ = nh.param("consecutive_points_dist", 1.0);
@@ -97,41 +107,81 @@ namespace simple_mpc_local_planner {
 
     ROS_INFO("Found %d corridors", corridor_num-1);
 
-    if (priority_ == 0) return true; //Run as DWA
+
+    //Corridor arrival time pub
+    corridor_arrival_time_pub_ = nh.advertise<std_msgs::Header>("corridor_arrival_ts", 1, true);
+    corridor_arrival_time_pub_.publish(arrival_ts_); //publish empty message
 
     //Corridor publishers
     corridor_pub_ = nh.advertise<geometry_msgs::PolygonStamped>("current_corridor", 1);
     inflated_corridor_pub_ = nh.advertise<geometry_msgs::PolygonStamped>("inflated_corridor", 1);
-    inflated_corridor2_pub_ = nh.advertise<geometry_msgs::PolygonStamped>("inflated_corridor2", 1);
-
+    
     //global plan topic
     XmlRpc::XmlRpcValue global_plan_topic;
     XmlRpc::XmlRpcValue odom_topic;
-    if (!nh.getParam(std::string("robot1/global_plan_topic"), global_plan_topic) && global_plan_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
-      ROS_ERROR("Couldn't get global plan topic.");
-      return false;
+    XmlRpc::XmlRpcValue priority_level;
+    XmlRpc::XmlRpcValue robot_name;
+    XmlRpc::XmlRpcValue arrival_time_topic;
+    
+    int robot_idx=1;
+    while (nh.hasParam(std::string("robot" + std::to_string(robot_idx) + "/name"))) {
+      
+      if (!nh.getParam(std::string("robot"+ std::to_string(robot_idx) +"/name"), robot_name) && robot_name.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get global robot name.");
+        return false;
+      }  
+
+      if (!nh.getParam(std::string("robot"+ std::to_string(robot_idx) +"/global_plan_topic"), global_plan_topic) && global_plan_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get global plan topic.");
+        return false;
+      }
+
+      if (!nh.getParam(std::string("robot"+ std::to_string(robot_idx) +"/amcl_topic"), odom_topic) && odom_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get amcl pose topic.");
+        return false;
+      }
+
+      if (!nh.getParam(std::string("robot"+ std::to_string(robot_idx) +"/priority_level"), priority_level) && priority_level.getType() != XmlRpc::XmlRpcValue::TypeInt) {
+        ROS_ERROR("Couldn't get priority level.");
+        return false;
+      }
+
+      const int s_priority = static_cast<int>(priority_level);
+      const std::string s_odom = static_cast<std::string>(odom_topic);
+      const std::string s_plan = static_cast<std::string>(global_plan_topic);
+      const std::string s_name = static_cast<std::string>(robot_name);
+
+      if (!nh.getParam(std::string("robot"+ std::to_string(robot_idx) +"/corridor_arrival_ts_topic"), arrival_time_topic) && arrival_time_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
+        ROS_ERROR("Couldn't get corridor arrival time topic.");
+        return false;
+      }
+      const std::string s_arrival_time = static_cast<std::string>(arrival_time_topic);
+      boost::function<void (const std_msgs::Header&)> arrival_cb = [this, s_name](const std_msgs::Header& arrival_time) {
+        arrival_times_[s_name].seq = arrival_time.seq;
+        arrival_times_[s_name].stamp = arrival_time.stamp;
+      };
+      subscribers_.push_back(nh.subscribe<std_msgs::Header>(s_arrival_time, 1, arrival_cb));
+
+      Robot robot;
+      robot.priority = s_priority;
+
+      //Set odom callback and subscriber
+      boost::function<void (const geometry_msgs::PoseWithCovarianceStamped&)> odom_cb = [this, s_name](const geometry_msgs::PoseWithCovarianceStamped& odom){
+        amcl_poses_[s_name] = odom;
+      };
+      subscribers_.push_back(nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(s_odom, 1, odom_cb));
+
+      //Set global plan callback and subscriber
+      boost::function<void (const nav_msgs::Path&)> plan_cb = [this, s_name](const nav_msgs::Path& plan) {
+        if(plan.poses.size()>0) global_plans_[s_name] = plan;
+      };
+      subscribers_.push_back(nh.subscribe<nav_msgs::Path>(s_plan, 1, plan_cb));
+      robot.name = s_name;
+
+      robots.push_back(robot);
+
+      robot_idx++;
     }
-
-    if (!nh.getParam(std::string("robot1/amcl_topic"), odom_topic) && odom_topic.getType() != XmlRpc::XmlRpcValue::TypeString) {
-      ROS_ERROR("Couldn't get amcl pose topic.");
-      return false;
-    }
-
-    //Set odom callback and subscriber
-    const std::string s_odom = static_cast<std::string>(odom_topic);
-    boost::function<void (const geometry_msgs::PoseWithCovarianceStamped&)> odom_cb = [this](const geometry_msgs::PoseWithCovarianceStamped& odom){
-      amcl_pose_ = odom;
-    };
-    subscribers_.push_back(nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(s_odom, 1, odom_cb));
-
-    //Set global plan callback and subscriber
-    const std::string s_plan = static_cast<std::string>(global_plan_topic);
-    boost::function<void (const nav_msgs::Path&)> plan_cb = [this](const nav_msgs::Path& plan) {
-      global_plan_ = plan;
-    };
-    subscribers_.push_back(nh.subscribe<nav_msgs::Path>(s_plan, 1, plan_cb));
-
-
     return true;
   }
 
@@ -211,10 +261,7 @@ namespace simple_mpc_local_planner {
   bool SimpleMPCLocalPlanner::isCorridorInRange(geometry_msgs::Polygon corridor) {
     if (my_local_plan_.size() == 0) return false;
 
-    geometry_msgs::TransformStamped odom_to_map;
     geometry_msgs::Pose target_pose;
-
-    odom_to_map = (*tf_).lookupTransform("map", tf_prefix_ + "/odom", ros::Time(0), ros::Duration(3.0));
     
     tf2::doTransform(my_local_plan_[my_local_plan_.size()-1].pose, target_pose, odom_to_map);
     if (SimpleMPCLocalPlanner::isPointInCorridor(target_pose.position, corridor)) return true;
@@ -305,10 +352,18 @@ namespace simple_mpc_local_planner {
       if (SimpleMPCLocalPlanner::isPathInCorridor(orig_global_plan, corridors_[i], global_costmap_resolution_, consecutive_points_dist_)) current_corridor_idx_ = i;
     }
 
+    if (current_corridor_idx_ == -1) {
+      arrival_ts_.stamp = ros::Time(0);
+      arrival_ts_.seq++;
+      corridor_arrival_time_pub_.publish(arrival_ts_);
+    }
+
     //Build center of corridor
+    /*
     if (current_corridor_idx_ != -1) {
       double radius = 1.0;
-      geometry_msgs::Point centroid = SimpleMPCLocalPlanner::getCorridorCentroid(corridors_[current_corridor_idx_]);
+      centroid = SimpleMPCLocalPlanner::getCorridorCentroid(corridors_[current_corridor_idx_]);
+      
       for (int i=0; i<4; i++) {
         geometry_msgs::Point32 p;
         p.x = centroid.x + radius*(i<2?1:-1);
@@ -317,13 +372,14 @@ namespace simple_mpc_local_planner {
         centroid_square_.points.push_back(p);
       }
     }
+    */
 
     //
 
     ROS_INFO("Got new plan");
     return dp_->setPlan(orig_global_plan);
   }
-
+  
   bool SimpleMPCLocalPlanner::isGoalReached() {
     if (! isInitialized()) {
       ROS_ERROR("This planner has not been initialized, please call initialize() before using this planner");
@@ -427,13 +483,12 @@ namespace simple_mpc_local_planner {
     return true;
   }
 
-  bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
+  bool SimpleMPCLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {    
     //My code
-    if (current_corridor_idx_ != -1 && priority_ > 0) { //my path passes through a corridor and low priority
+    if (current_corridor_idx_ != -1) { //my path passes through a corridor
 
       geometry_msgs::Polygon corridor = corridors_[current_corridor_idx_];
       geometry_msgs::Polygon inflated_corridor = inflateCorridor(corridor, corridor_inflation_amount_);
-      geometry_msgs::Polygon inflated_corridor2 = inflateCorridor(corridor, corridor2_inflation_amount_);
 
       //Publish corridors for visualization
       geometry_msgs::PolygonStamped pub_poly;
@@ -446,41 +501,86 @@ namespace simple_mpc_local_planner {
       pub_poly.polygon = inflated_corridor;
       inflated_corridor_pub_.publish(pub_poly);
 
-      pub_poly.polygon = inflated_corridor2;
-      inflated_corridor2_pub_.publish(pub_poly);
 
-      //Check if any other path passes through corridor
-      bool is_in_corridor = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, corridor, global_costmap_resolution_, consecutive_points_dist_);
-      bool is_in_corridor2 = SimpleMPCLocalPlanner::isPathInCorridor(global_plan_, inflated_corridor, global_costmap_resolution_, consecutive_points_dist_);
-      bool is_close_to_goal = global_plan_.poses.size() > 0 ? SimpleMPCLocalPlanner::isCloseToGoal(global_plan_.poses[global_plan_.poses.size()-1].pose.position, amcl_pose_) : false;
+      //This robot inside or outside corridor
+      geometry_msgs::PoseStamped target_pose;
+      tf2::doTransform(current_pose_, target_pose, odom_to_map);
       
-      if (is_in_corridor && isCorridorInRange(inflated_corridor)) {
-        ROS_WARN_ONCE("Corridor in range while other robot plans on traversing it: stop and wait");
-        stop_ = true;
+      this_robot.in_corridor = SimpleMPCLocalPlanner::isPointInCorridor(target_pose.pose.position, corridor);
+
+      if (!this_robot.entered_corridor) {
+        this_robot.entered_corridor = this_robot.in_corridor;
+      } else {
+        this_robot.exited_corridor = !SimpleMPCLocalPlanner::isPointInCorridor(target_pose.pose.position, inflated_corridor);
       }
 
-      if (stop_) {
-        //Check if other robot passed through center of corridor
-        if (isPointInCorridor(amcl_pose_.pose.pose.position, centroid_square_)) {
-          entered_corridor_ = true;
-          ROS_INFO_ONCE("Other robot has reached center of corridor");
+      if (this_robot.exited_corridor) {
+        arrival_ts_.stamp = ros::Time(0);
+        arrival_ts_.seq++;
+        corridor_arrival_time_pub_.publish(arrival_ts_);
+
+        ROS_INFO_ONCE("[%s] This robot exited corridor", tf_prefix_.c_str());
+
+        current_corridor_idx_ = -1;
+        this_robot.entered_corridor = this_robot.exited_corridor = false;
+      }
+      
+      if (!stop_ && isCorridorInRange(inflated_corridor) && !(this_robot.entered_corridor && !this_robot.exited_corridor)) { //last condition verifies that robot is not exiting corridor
+        if (arrival_ts_.stamp == ros::Time(0)) {
+          arrival_ts_.stamp = ros::Time::now();
+          arrival_ts_.seq++;
+          corridor_arrival_time_pub_.publish(arrival_ts_);
+
+          ROS_INFO_ONCE("[%s] Arrival time: %d", tf_prefix_.c_str(), arrival_ts_.stamp.sec);
+
+          ros::Duration(0.5).sleep();
         }
-        
+
+        if (robots.size()>0) {
+          //Check if other path passes through corridor
+          robots[0].path_in_corridor = SimpleMPCLocalPlanner::isPathInCorridor(global_plans_[robots[0].name], corridor, global_costmap_resolution_, consecutive_points_dist_);
+          bool priority_condition = 
+            (this_robot.priority > robots[0].priority) ||
+            (this_robot.priority == robots[0].priority && arrival_times_[robots[0].name].stamp != ros::Time(0) && arrival_times_[robots[0].name].stamp<arrival_ts_.stamp);
+
+          if (robots[0].path_in_corridor && priority_condition) { //|| (arrival_times_["husky1"].stamp==arrival_ts_.stamp.nsec && robots[0].name.compare(tf_prefix_.c_str())<0)) {
+            ROS_WARN_ONCE("[%s] Corridor in range while other robot plans on traversing it: stop and wait", tf_prefix_.c_str());
+            stop_ = true;
+          }
+
+          //Other robot already in corridor
+          robots[0].in_corridor = isPointInCorridor(amcl_poses_[robots[0].name].pose.pose.position, corridor);
+
+          if (robots[0].in_corridor) {
+            ROS_WARN_ONCE("[%s] Another robot is traversing already, stop", tf_prefix_.c_str());
+            stop_ = true;  //other robot is traversing already -> stop
+          }
+        }
+      }
+
+      if (stop_ && !this_robot.in_corridor) {
+
         //Check if other robot exited corridor
-        exited_corridor_ = entered_corridor_ && !isPointInCorridor(amcl_pose_.pose.pose.position, inflated_corridor2);
+        robots[0].exited_corridor = arrival_times_[robots[0].name].seq > 0 && arrival_times_[robots[0].name].stamp == ros::Time(0);
 
-        //ROS_WARN("%f, %f, %d", amcl_pose_.pose.pose.position.x, amcl_pose_.pose.pose.position.y, isPointInCorridor(amcl_pose_.pose.pose.position, inflated_corridor2));
+        //Check if other robot is close to its goal
+        robots[0].close_to_goal = false; //global_plans_[robots[0].name].poses.size() > 0 ? SimpleMPCLocalPlanner::isCloseToGoal(global_plans_[robots[0].name].poses[global_plans_[robots[0].name].poses.size()-1].pose.position, amcl_poses_[robots[0].name]) : false;
 
-        if (exited_corridor_ || !is_in_corridor2 || is_close_to_goal) { //continue as DWA
-          ROS_INFO_ONCE("Other robot has exited corridor: continue");
-          
+        //Check if global plan of other robot still passes through corridor
+        robots[0].in_corridor2 = SimpleMPCLocalPlanner::isPathInCorridor(global_plans_[robots[0].name], inflated_corridor, global_costmap_resolution_, consecutive_points_dist_);
+
+        if (robots[0].exited_corridor || !robots[0].in_corridor2 || robots[0].close_to_goal) { //continue as DWA
+          ROS_INFO_ONCE("[%s] Other robot has exited corridor: continue", tf_prefix_.c_str());
+
           //Reset path
           nav_msgs::Path path;
-          global_plan_ = path;
+          global_plans_[robots[0].name] = path;
 
-          //Reset entered and exited corridor
-          entered_corridor_ = false;
-          exited_corridor_ = false;
+          //Reset entered, exited corridor and traversing
+          robots[0].path_in_corridor =
+          robots[0].in_corridor =
+          robots[0].exited_corridor = false;
+
           stop_ = false;
         }
         

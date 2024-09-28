@@ -100,7 +100,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <!-- Realsense Camera Primary and Secondary -->
   <xacro:arg name="realsense_enabled"             default="$(optenv HUSKY_REALSENSE_ENABLED 0)" />
-  <xacro:arg name="realsense_model"               default="$(optenv HUSKY_REALSENSE_MODEL d435)"/>
+  <xacro:arg name="realsense_model"               default="$(optenv HUSKY_REALSENSE_MODEL d435i)"/>
   <xacro:arg name="realsense_topic"               default="$(optenv HUSKY_REALSENSE_TOPIC realsense)" />
   <xacro:arg name="realsense_prefix"              default="$(optenv HUSKY_REALSENSE_PREFIX camera)" />
   <xacro:arg name="realsense_parent"              default="$(optenv HUSKY_REALSENSE_PARENT top_plate_link)" />

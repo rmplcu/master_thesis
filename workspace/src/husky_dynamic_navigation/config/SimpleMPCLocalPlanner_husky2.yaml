@@ -39,10 +39,12 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   # # Oscillation Prevention Parameters
   # oscillation_reset_dist: 0.25 #How far the robot must travel in meters before oscillation flags are reset (double, default: 0.05)
 
+  odom_topic: "/husky2/amcl_pose"
+
   # My params
   priority_level: 1
   corridor1: [[4.5, -1.2], [4.5, 1.2], [-4.5, 1.2], [-4.5, -1.2]] # Oriented counterclockwise!
-  corridor2: [[4.5, 6.0], [4.5, 8.0], [-4.5, 8.0], [-4.5, 6.0]]
+  #corridor2: [[4.5, 6.0], [4.5, 8.0], [-4.5, 8.0], [-4.5, 6.0]]
   
   inflation_scaling_factor: 1.25
   inflation_scaling_factor2: 1.6
@@ -52,5 +54,7 @@ SimpleMPCLocalPlanner: #DwaLocalPlanner
   
   robot1:
     name: "husky1"
-    global_plan_topic: "/husky1/move_base/NavfnROS/plan"
+    global_plan_topic: "/husky1/move_base/GlobalPlanner/plan"
     amcl_topic: "/husky1/amcl_pose"
+    corridor_arrival_ts_topic: "/husky1/move_base/SimpleMPCLocalPlanner/corridor_arrival_ts"
+    priority_level: 0
